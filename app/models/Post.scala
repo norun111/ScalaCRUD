@@ -9,7 +9,9 @@ case class Post(
                     user: Option[User] = None,
                     text: String,
                     commentCount: Int,
-                    postedAt: DateTime )
+                    postedAt: DateTime ) {
+
+}
 
 object Post extends SQLSyntaxSupport[Post] {
   def apply(p: SyntaxProvider[Post])(rs: WrappedResultSet): Post = apply(p.resultName)(rs)
@@ -27,11 +29,11 @@ object Post extends SQLSyntaxSupport[Post] {
       if (rs.timestampOpt(u.resultName.deletedAt).isEmpty) Some(User(u)(rs)) else None
     })
   }
-
-  val p = Post.syntax("p")
   private val u = User.u
+  val p = Post.syntax("p")
 
-  def create(name: String, userId: Option[Long] = None, postedAt: DateTime = DateTime.now)(implicit session: DBSession = autoSession): Post = {
+
+  def create(userId: Option[Long] = None, text: String, commentCount: Int, postedAt: DateTime = DateTime.now)(implicit session: DBSession = autoSession): Post = {
     if (userId.isDefined && User.find(userId.get).isEmpty) {
       throw new IllegalArgumentException(s"User is not found. (userId: ${userId})")
     }
@@ -40,7 +42,7 @@ object Post extends SQLSyntaxSupport[Post] {
         column.userId -> userId,
         column.text -> text,
         column.commentCount -> commentCount,
-        column.postedAt -> postedAt)
+        column.postedAt -> postedAt,
     }.updateAndReturnGeneratedKey.apply()
 
     Post(
