@@ -4,6 +4,6 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /index                           controllers.SampleController.index
-GET     /database                           controllers.SampleController.database
 
+GET    /posts                       controllers.PostController.create
+POST    /post/create                controllers.PostController.create
