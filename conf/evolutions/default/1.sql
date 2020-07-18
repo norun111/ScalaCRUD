@@ -20,18 +20,17 @@ INSERT INTO User(id, name) VALUES
     ,(@user_3, 'charlie');
 
 # --- !Downs
-
 DROP TABLE IF EXISTS User;
 
 # Add Post
 
 # --- !Ups
 CREATE TABLE Post (
-    id bigint(20) NOT NULL,
-    user_id bigint(20) NOT NULL,
+    id UUID DEFAULT RANDOM_UUID(),
+    user_id bigint(20),
     text text NOT NULL,
     comment_count int NOT NULL,
-    posted_at date NOT NULL,
+    posted_at date,
     FOREIGN KEY (user_id) REFERENCES User(id),
     PRIMARY KEY (id)
 );
