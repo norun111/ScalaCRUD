@@ -33,13 +33,28 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
   import PostJsonController._
 
+  def index = Action { implicit request =>
+    val posts = DB readOnly { implicit session =>
+      sql"select text from post"
+        .map { rs =>
+          rs.string("text")
+        }
+        .list
+        .apply()
+    }
+    // ユーザの一覧をJSONで返す
+    Ok(Json.obj("posts" -> posts))
+  }
+
   def create = Action(parse.json) { implicit request =>
     request.body
       .validate[PostForm]
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
+          //uuidの保存
           val uuid = UUID.randomUUID
+
           Post.create(uuid.toString, form.text, form.comment_count)
           Ok(Json.obj("post" -> form))
         }
