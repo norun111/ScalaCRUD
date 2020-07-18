@@ -8,7 +8,25 @@ import scalikejdbc.config._
 
 case class Post(text: String, comment_count: Int)
 
-object Post {
+//QueryDSL
+//object Post extends SQLSyntaxSupport[Post] {
+//
+//  override val tableName = "post"
+//  override lazy val columns: Seq[String] = Seq("id", "text")
+//
+//  val p = Post.syntax("p")
+//  override val autoSession = AutoSession
+//
+//  def apply(p: SyntaxProvider[Post])(rs: WrappedResultSet): Post = apply(p.resultName)(rs)
+//  def apply(p: ResultName[Post])(rs: WrappedResultSet): Post = new Post(
+//    id = rs.string(p.id),
+//    text = rs.string(p.text),
+//  )
+//
+//}
+
+//SQLInterpolation
+object Post extends SQLSyntaxSupport[Post] {
 
   DBs.setupAll()
 
@@ -18,7 +36,7 @@ object Post {
       .map { rs =>
         Post(
           rs.string("text"),
-          rs.int("comment_count"),
+          rs.int("comment_count")
         )
       }
       .list()
