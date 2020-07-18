@@ -44,6 +44,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
     }
     // ユーザの一覧をJSONで返す
     Ok(Json.obj("posts" -> posts))
+    //{"posts":["hello scala","hello scala","hello scala","hello scala","hello scala"]}
   }
 
   def create = Action(parse.json) { implicit request =>
