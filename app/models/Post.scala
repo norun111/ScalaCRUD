@@ -13,11 +13,11 @@ object Post {
   DBs.setupAll()
 
   def findAll: Seq[Post] = DB readOnly { implicit session =>
-    sql"SELECT id, text, commented_count, posted_at FROM POST"
+    sql"SELECT id, user_id, text, commented_count, posted_at FROM POST"
       .map { rs =>
         Post(
           rs.string("text"),
-          rs.int("comment_count")
+          rs.int("comment_count"),
         )
       }
       .list()
