@@ -49,5 +49,4 @@ class PostJsonController @Inject()(components: ControllerComponents)
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
-
 }
