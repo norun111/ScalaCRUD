@@ -5,5 +5,8 @@
 
 # An example controller showing a sample home page
 
-GET    /posts                       controllers.PostController.create
-POST    /post/create                controllers.PostController.create
+#GET    /posts                       controllers.PostController.create
+#POST    /post/create                controllers.PostController.create
+
+# JSON API
+POST        /json/create            controllers.PostJsonController.create
