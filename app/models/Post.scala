@@ -1,95 +1,86 @@
 package models
 
 import scalikejdbc._
+import scalikejdbc.jsr310._
 import java.util.Date
+
 import scalikejdbc.config._
 
-case class User(id: Long, name: String)
-
-case class Post(id: Long,
-                text: String,
-                userId: Option[Long] = None,
-                commentCount: Int,
-                posted_at: Date,
-                user: Option[User] = None,
-)
-
-object User {
-  def apply(rs: WrappedResultSet) = new User(rs.long("id"), rs.string("name"))
-}
+case class Post(id: Long, text: String, comment_count: Int)
 
 object Post {
-  def apply(rs: WrappedResultSet) = new Post(
-    rs.long("id"),
-    rs.string("text"),
-    rs.longOpt("user_id"),
-    rs.int("commentCount"),
-    rs.date("posted_at")
-  )
 
-  def withUser(rs: WrappedResultSet) = {
-    new Post(
-      id = rs.long("p_id"),
-      text = rs.string("p_text"),
-      userId = rs.longOpt("p_user_id"),
-      commentCount = rs.int("commentCount"),
-      posted_at = rs.date("posted_at"),
-      user = rs.longOpt("p_id").map(id => User(id, rs.string("u_name")))
-    )
+  DBs.setupAll()
+
+  def findAll: Seq[Post] = DB readOnly { implicit session =>
+    sql"SELECT id, text, commented_count, posted_at FROM POST"
+      .map { rs =>
+        Post(
+          rs.long("id"),
+          rs.string("text"),
+          rs.int("comment_count")
+        )
+      }
+      .list()
+      .apply()
   }
 
-  def addPost(text: String): Unit = {
-    DBs.setupAll()
-
-    val count = DB autoCommit { implicit session =>
-      sql"insert into post (name, created_at) values (${text}, current_date())".update.apply()
-    }
-
-    DBs.closeAll()
-  }
-
-  def execute(): Unit = {
-    // loaded from "db.default.*"
-    val postIds = DB readOnly { implicit session =>
-      sql"select id from public.post".map(_.long(1)).list.apply()
-    }
-
+  def create(text: String, comment_count: Int): Unit = DB localTx { implicit session =>
+    sql"INSERT INTO post (text, comment_count) VALUES (${text},${comment_count})"
+      .update()
+      .apply()
   }
 }
-//object User extends SQLSyntaxSupport[User] {
-//
-//  override val tableName = "user"
-//
-////  def apply(u: ResultName[User])(rs: WrappedResultSet): User = {
-////    new User(
-////      rs.long(u.id),
-////      rs.string(u.name)
-////    )
-////  }
-//}
-//
-//
-//
+
 //object Post extends SQLSyntaxSupport[Post] {
 //
 //  override val tableName = "post"
-////  override val columns = Seq("id", "user_id", "text", "posted_at", "comment_count")
 //
-//  //define alias name of user and post table
-////  val p = this.syntax("p")
+//  override val columns = Seq("id", "user_id", "text", "posted_at", "comment_count")
 //
-////  def apply(p: SyntaxProvider[Post])(rs: WrappedResultSet): Post = apply(p.resultName)(rs)
+//  def apply(p: SyntaxProvider[Post])(rs: WrappedResultSet): Post = apply(p.resultName)(rs)
 //
-////  def apply(p: ResultName[Post], us: ResultName[User])(rs: WrappedResultSet): Post = {
+//  def apply(p: ResultName[Post])(rs: WrappedResultSet): Post = new Post(
+//    id = rs.get(p.id),
+//    text = rs.string(p.text),
+//    userId = rs.get(p.userId),
+//    commentCount = rs.int(p.commentCount),
+//    posted_at = rs.get(p.postedAt)
+//  )
+//
 ////
-////    val uid = rs.longOpt(us.id)
+////  //define alias name of user and post table
+////  val p = Post.syntax("p")
+////
+////  override val autoSession = AutoSession
+////
+////  def find(id: Long)(implicit session: DBSession = autoSession): Option[Post] = {
+////    withSQL {
+////      select.from(Post as p).where.eq(p.id, id)
+////    }.map(Post(p.resultName)).single.apply()
+////  }
+////
+////  def findAll()(implicit session: DBSession = autoSession): List[Post] = {
+////    withSQL(select.from(Post as p)).map(Post(p.resultName)).list.apply()
+////  }
+//
+////  def create(userId: Option[Long] = None,
+////             text: String,
+////             commentCount: Int,
+////             )(implicit session: DBSession = autoSession): Post = {
+////    val id = withSQL {
+////      insert.into(Post).namedValues(
+////          column.userId -> userId,
+////          column.text -> text,
+////          column.commentCount -> commentCount,
+////        )
+////    }.updateAndReturnGeneratedKey.apply()
+////
 ////    Post(
-////      rs.long(p.id),
-////      rs.string(p.text),
-////      userId = uid,
-////      user = uid.map(_ => User(us)(rs)),
-////      rs.int(p.commentCount),
-////      rs.zonedDateTime(p.postedAt)
+////      id = id,
+////      userId = userId,
+////      text = text,
+////      commentCount = commentCount
 ////    )
 ////  }
 //
@@ -104,45 +95,19 @@ object Post {
 ////  def opt(m: SyntaxProvider[Post])(rs: WrappedResultSet): Option[Post] =
 ////    rs.longOpt(m.resultName.id).map(_ => Post(m)(rs))
 ////
-//
-////  def create(userId: Option[Long] = None,
-////             text: String,
-////             commentCount: Int,
-////             postedAt: ZonedDateTime = ZonedDateTime.now)(
-////      implicit session: DBSession = autoSession): Post = {
-//////        if (userId.isDefined && User.find(userId.get).isEmpty) {
-//////          throw new IllegalArgumentException(s"User is not found. (userId: ${userId})")
-//////        }
-////    val id = withSQL {
-////      insert
-////        .into(Post)
-////        .namedValues(
-////          column.userId -> userId,
-////          column.text -> text,
-////          column.commentCount -> commentCount,
-////          column.postedAt -> postedAt
-////        )
-////    }.updateAndReturnGeneratedKey.apply()
-////
-////    Post(
-////      id = id,
-////      userId = userId,
-////      text = text,
-////      commentCount = commentCount,
-////      postedAt = postedAt
-////    )
-////  }
-//  // find all members
 //}
-////  // find by primary key
-//////  def find(id: Long)(implicit session: DBSession = autoSession): Option[Post] =
-//////    withSQL {
-//////      select
-//////        .from(Post as p)
-//////        .leftJoin(User as u)
-//////        .on(p.userId, u.id)
-//////        .where
-//////        .eq(p.id, id)
-//////        .and
-//////        .append(isNotDeleted)
-//////    }.one(Post(p, u))
+/*
+  find by primary key
+  def find(id: Long)(implicit session: DBSession = autoSession): Option[Post] =
+    withSQL {
+      select
+        .from(Post as p)
+        .leftJoin(User as u)
+        .on(p.userId, u.id)
+        .where
+        .eq(p.id, id)
+        .and
+        .append(isNotDeleted)
+    }.one(Post(p, u))
+
+ */
