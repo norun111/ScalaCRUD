@@ -9,4 +9,5 @@
 #POST    /post/create                controllers.PostController.create
 
 # JSON API
+GET         /json/index             controllers.PostJsonController.index
 POST        /json/create            controllers.PostJsonController.create
