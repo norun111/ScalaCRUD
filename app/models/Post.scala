@@ -1,12 +1,12 @@
 package models
 
 import scalikejdbc._
-import scalikejdbc.jsr310._
 import java.util.Date
+import java.util.UUID
 
 import scalikejdbc.config._
 
-case class Post(id: Long, text: String, comment_count: Int)
+case class Post(text: String, comment_count: Int)
 
 object Post {
 
@@ -16,7 +16,6 @@ object Post {
     sql"SELECT id, text, commented_count, posted_at FROM POST"
       .map { rs =>
         Post(
-          rs.long("id"),
           rs.string("text"),
           rs.int("comment_count")
         )
@@ -25,11 +24,12 @@ object Post {
       .apply()
   }
 
-  def create(text: String, comment_count: Int): Unit = DB localTx { implicit session =>
-    sql"INSERT INTO post (text, comment_count) VALUES (${text},${comment_count})"
-      .update()
-      .apply()
-  }
+  def create(id: String = UUID.randomUUID.toString, text: String, comment_count: Int): Unit =
+    DB localTx { implicit session =>
+      sql"INSERT INTO post (id, text, comment_count) VALUES (${id},${text},${comment_count})"
+        .update()
+        .apply()
+    }
 }
 
 //object Post extends SQLSyntaxSupport[Post] {

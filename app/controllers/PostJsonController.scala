@@ -1,28 +1,29 @@
 package controllers
 
-import java.util.Date
-
 import javax.inject.Inject
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import scalikejdbc._
 import models._
+import java.util.UUID
 
 object PostJsonController {
 
   //Post情報を受け取る為のケースクラス
-  case class PostForm(text: String, comment_count: Int)
+  case class PostForm(id: String, text: String, comment_count: Int)
 
   // PostをJSONに変換するためのWritesを定義
   implicit val postsWrites = (
-    (__ \ "text").write[String] and
+    (__ \ "id").write[String] and
+      (__ \ "text").write[String] and
       (__ \ "comment_count").write[Int]
   )(unlift(PostForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
   implicit val userFormReads = (
-    (__ \ "text").read[String] and
+    (__ \ "id").read[String] and
+      (__ \ "text").read[String] and
       (__ \ "comment_count").read[Int]
   )(PostForm)
 }
@@ -38,8 +39,9 @@ class PostJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          Post.create(form.text, form.comment_count)
-          Ok(Json.obj("result" -> "success"))
+          val uuid = UUID.randomUUID
+          Post.create(uuid.toString, form.text, form.comment_count)
+          Ok(Json.obj("post" -> form))
         }
       }
       .recoverTotal { e =>
@@ -47,5 +49,4 @@ class PostJsonController @Inject()(components: ControllerComponents)
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
-
 }
