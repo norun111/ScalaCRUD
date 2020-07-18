@@ -30,3 +30,5 @@ libraryDependencies ++= defaultDependencies
 // sbt scalafmtでコードフォーマット
 scalafmtConfig := Some(file(".scalafmt.conf"))
 scalafmtOnCompile := true // compile時に自動でコードフォーマット
+
+evictionWarningOptions in update := EvictionWarningOptions.default.withWarnEvictionSummary(false)
