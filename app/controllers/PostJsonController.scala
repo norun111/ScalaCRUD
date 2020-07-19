@@ -19,7 +19,7 @@ object PostJsonController {
                       posted_at: Date)
 
   // PostをJSONに変換するためのWritesを定義
-  implicit val postsWrites = (
+  implicit val postFormWrites = (
     (__ \ "id").write[String] and
       (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
@@ -28,7 +28,7 @@ object PostJsonController {
   )(unlift(PostForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
-  implicit val postsFormReads = (
+  implicit val postFormReads = (
     (__ \ "id").read[String] and
       (__ \ "user_id").read[String] and
       (__ \ "text").read[String] and
@@ -44,7 +44,8 @@ class PostJsonController @Inject()(components: ControllerComponents)
   // コンパニオンオブジェクトに定義したReads、Writesを参照するためにimport文を追加
   import PostJsonController._
 
-  def index = Action { implicit request =>
+  //  Action or Action(parse.json)
+  def index = Action(parse.json) { implicit request =>
     val posts = DB readOnly { implicit session =>
       sql"""
            select id, user_id, text, comment_count, posted_at from post
@@ -72,10 +73,19 @@ class PostJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          //uuidの保存
-          val uuid = UUID.randomUUID
-          Post.create(uuid.toString, form.user_id, form.text, form.comment_count, form.posted_at)
-          Ok(Json.obj("post" -> form))
+          //PostForm(1,11111111-1111-1111-1111-111111111,hello scala,0,Sat Jul 18 00:00:00 JST 2020)
+          //if(form.user_idがuserテーブルのidに存在していたら)
+          val user = Post.findUserID(form.user_id)
+
+          if (user.isDefined) {
+            //uuidの保存
+            val uuid = UUID.randomUUID
+            Post.create(uuid.toString, form.user_id, form.text, form.comment_count, form.posted_at)
+            Ok(Json.obj("post" -> form))
+          } else {
+            //エラー処理しないといけない(必須)
+            Ok(Json.obj("post" -> form))
+          }
         }
       }
       .recoverTotal { e =>
