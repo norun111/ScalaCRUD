@@ -35,18 +35,6 @@ object PostJsonController {
       (__ \ "posted_at").read[String]
   )(PostForm)
 
-//  implicit val postsWritesFormat = new Writes[PostForm] {
-//    def writes(post: PostForm): JsValue = {
-//      Json.obj(
-//        "id" -> post.id,
-//        "text" -> post.text,
-//        "user_id" -> post.user_id,
-//        "comment_count" -> post.comment_count,
-//        "posted_at" -> post.posted_at
-//      )
-//    }
-//  }
-
 }
 
 class PostJsonController @Inject()(components: ControllerComponents)
@@ -68,11 +56,13 @@ class PostJsonController @Inject()(components: ControllerComponents)
            rs.string("posted_at"),
           )
         }
-        .list
+        .list()
         .apply()
     }
     // Postの一覧をJSONで返す
     Ok(Json.obj("posts" -> posts))
+    //posts:[["b26d438a-13bd-497e-87f8-00785343f9f7",0,"hello scala",0,"2020-07-18 16:16:06.691"],
+    //posts:[{}]この形式に変換したい
   }
 
   def create = Action(parse.json) { implicit request =>
@@ -83,7 +73,6 @@ class PostJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           //uuidの保存
           val uuid = UUID.randomUUID
-
           Post.create(uuid.toString, form.text, form.comment_count)
           Ok(Json.obj("post" -> form))
         }
