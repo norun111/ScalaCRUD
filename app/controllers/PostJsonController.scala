@@ -7,32 +7,33 @@ import play.api.libs.functional.syntax._
 import scalikejdbc._
 import models._
 import java.util.UUID
+import java.util.Date
 
 object PostJsonController {
 
   //Post情報を受け取る為のケースクラス
   case class PostForm(id: String,
-                      user_id: Long,
+                      user_id: String,
                       text: String,
                       comment_count: Int,
-                      posted_at: String)
+                      posted_at: Date)
 
   // PostをJSONに変換するためのWritesを定義
   implicit val postsWrites = (
     (__ \ "id").write[String] and
-      (__ \ "user_id").write[Long] and
+      (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
       (__ \ "comment_count").write[Int] and
-      (__ \ "posted_at").write[String]
+      (__ \ "posted_at").write[Date]
   )(unlift(PostForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
   implicit val postsFormReads = (
     (__ \ "id").read[String] and
-      (__ \ "user_id").read[Long] and
+      (__ \ "user_id").read[String] and
       (__ \ "text").read[String] and
       (__ \ "comment_count").read[Int] and
-      (__ \ "posted_at").read[String]
+      (__ \ "posted_at").read[Date]
   )(PostForm)
 
 }
@@ -50,10 +51,10 @@ class PostJsonController @Inject()(components: ControllerComponents)
          """
         .map { rs =>
           (rs.string("id"),
-           rs.long("user_id"),
+           rs.string("user_id"),
            rs.string("text"),
            rs.int("comment_count"),
-           rs.string("posted_at"),
+           rs.timestamp("posted_at"),
           )
         }
         .list()
@@ -73,7 +74,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           //uuidの保存
           val uuid = UUID.randomUUID
-          Post.create(uuid.toString, form.user_id, form.text,form.comment_count, form.posted_at)
+          Post.create(uuid.toString, form.user_id, form.text, form.comment_count, form.posted_at)
           Ok(Json.obj("post" -> form))
         }
       }
