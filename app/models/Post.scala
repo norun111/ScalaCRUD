@@ -43,7 +43,11 @@ object Post extends SQLSyntaxSupport[Post] {
       .apply()
   }
 
-  def create(id: String = UUID.randomUUID.toString, user_id: Long, text: String, comment_count: Int, posted_at: Date): Unit =
+  def create(id: String = UUID.randomUUID.toString,
+             user_id: String,
+             text: String,
+             comment_count: Int,
+             posted_at: Date): Unit =
     DB localTx { implicit session =>
       sql"INSERT INTO post (id, user_id, text, comment_count, posted_at) VALUES (${id},${user_id},${text},${comment_count},${posted_at})"
         .update()
