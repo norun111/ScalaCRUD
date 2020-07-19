@@ -44,8 +44,8 @@ class PostJsonController @Inject()(components: ControllerComponents)
   // コンパニオンオブジェクトに定義したReads、Writesを参照するためにimport文を追加
   import PostJsonController._
 
-  //  Action or Action(parse.json)
-  def index = Action(parse.json) { implicit request =>
+  //index API
+  def index = Action { implicit request =>
     val posts = DB readOnly { implicit session =>
       sql"""
            select id, user_id, text, comment_count, posted_at from post
@@ -64,16 +64,16 @@ class PostJsonController @Inject()(components: ControllerComponents)
     // Postの一覧をJSONで返す
     Ok(Json.obj("posts" -> posts))
   //posts:[["b26d438a-13bd-497e-87f8-00785343f9f7",0,"hello scala",0,"2020-07-18 16:16:06.691"],
-  //posts:[{}]この形式に変換したいので後々
+  //後々：posts:[{}]この形式に変換したい
   }
 
+  //create API
   def create = Action(parse.json) { implicit request =>
     request.body
       .validate[PostForm]
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-
           val user = Post.findUserID(form.user_id)
           //Some(User(11111111-1111-1111-1111-111111111111,alice))
 
@@ -83,7 +83,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
             Post.create(uuid.toString, form.user_id, form.text, form.comment_count, form.posted_at)
             Ok(Json.obj("post" -> form))
           } else {
-            //エラー処理しないといけない(必須)
+            //後々：エラー処理しないといけない(必須)
             Ok(Json.obj("post" -> form))
           }
         }
