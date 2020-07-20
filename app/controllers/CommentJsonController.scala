@@ -28,6 +28,34 @@ object CommentJsonController {
     (__ \ "user_id").read[String] and
       (__ \ "text").read[String]
   )(CommentForm)
+
+  // Index API Json
+  case class CommentIndex(
+      id: String = UUID.randomUUID.toString,
+      user_id: String,
+      text: String,
+      parent_post_id: String,
+      comment_count: Int,
+      posted_at: Date
+  )
+
+  implicit val commentIndexWrites = (
+    (__ \ "id").write[String] and
+      (__ \ "user_id").write[String] and
+      (__ \ "text").write[String] and
+      (__ \ "parent_post_id").write[String] and
+      (__ \ "comment_count").write[Int] and
+      (__ \ "posted_at").write[Date]
+  )(unlift(CommentIndex.unapply))
+
+  implicit val commentIndexReads = (
+    (__ \ "id").read[String] and
+      (__ \ "user_id").read[String] and
+      (__ \ "text").read[String] and
+      (__ \ "parent_post_id").read[String] and
+      (__ \ "comment_count").read[Int] and
+      (__ \ "posted_at").read[Date]
+  )(CommentIndex)
 }
 
 class CommentJsonController @Inject()(components: ControllerComponents)
@@ -36,7 +64,27 @@ class CommentJsonController @Inject()(components: ControllerComponents)
   import CommentJsonController._
 
   //index API
-  def index(post_id: Long) = TODO
+  def index(post_id: String) = Action { implicit request =>
+    val comments = DB readOnly { implicit session =>
+      sql"""
+           select id, user_id, text, parent_post_id, comment_count, posted_at
+           from comment
+           where parent_post_id = ${post_id}
+         """
+        .map { rs =>
+          (rs.string("id"),
+           rs.string("user_id"),
+           rs.string("text"),
+           rs.string("parent_post_id"),
+           rs.int("comment_count"),
+           rs.timestamp("posted_at"),
+          )
+        }
+        .list()
+        .apply()
+    }
+    Ok(Json.obj("comments" -> comments))
+  }
 
   //create API
   def create(post_id: String) = Action(parse.json) { implicit request =>
@@ -58,7 +106,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
               Comment.addComment(post_id)
               Ok(Json.obj("result" -> "OK"))
             } else {
-              
+
               //エラー処理
               Ok(Json.obj("result" -> "FAIL"))
             }
