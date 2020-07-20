@@ -41,13 +41,12 @@ object Comment {
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
              text: String,
-             parent_post_id: String = UUID.randomUUID.toString,
-             posted_at: Date): Unit =
+             parent_post_id: String = UUID.randomUUID.toString): Unit =
     DB localTx { implicit session =>
       sql"""INSERT INTO comment
-                 (id, user_id, text, parent_post_id, comment_count, posted_at)
+                 (id, user_id, text, parent_post_id, comment_count)
                  VALUES
-                 (${id} ,${user_id},${text}, ${parent_post_id} , 0 ,${posted_at})
+                 (${id} ,${user_id},${text}, ${parent_post_id} , 0)
                  """.update().apply()
     }
 
