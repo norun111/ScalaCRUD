@@ -6,9 +6,7 @@ import play.api.mvc.{ AbstractController, ControllerComponents }
 class CommentJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
-  def index = TODO
+  def index(id: Long) = TODO
 
-  def create = TODO
+  def create(id: Long) = TODO
 }
-
-
