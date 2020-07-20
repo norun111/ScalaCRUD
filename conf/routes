@@ -9,5 +9,5 @@ GET         /json/index                      controllers.PostJsonController.inde
 POST        /json/create                     controllers.PostJsonController.create
 
 # CommentJSON API
-GET         /posts/:post_id/comments         controllers.CommentJsonController.index(post_id: Long)
+GET         /posts/:post_id/comments         controllers.CommentJsonController.index(post_id: String)
 POST        /posts/:post_id/comments/create  controllers.CommentJsonController.create(post_id: String)
