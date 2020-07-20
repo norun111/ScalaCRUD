@@ -35,6 +35,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
 
   import CommentJsonController._
 
+  //index API
   def index(post_id: Long) = TODO
 
   //create API
@@ -45,8 +46,9 @@ class CommentJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          
-          val referencePostId = Comment.findPost(post_id).get.id
+
+          val referencePost = Comment.findPost(post_id)
+          val referencePostId = referencePost.get.id
 
           if (post_id == referencePostId) {
             val uuid = UUID.randomUUID
