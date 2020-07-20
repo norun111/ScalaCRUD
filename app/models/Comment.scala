@@ -50,6 +50,7 @@ object Comment {
                  """.update().apply()
     }
 
+  // not used
   //値を0で挿入し、その後にpost.comment_count + 1でupdate
   def setCommentCount(post_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
@@ -60,13 +61,12 @@ object Comment {
     """.update().apply()
     }
 
-  //post_id = form.parent_post_id
+
   //親Postのコメント数を+1
   def addComment(post_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
-      val strPostId = post_id
       sql"""UPDATE post SET comment_count = comment_count + 1
-    WHERE post_id = UNHEX(REPLACE(${strPostId}, '-', ''))
+    WHERE id = ${post_id}
     """.update().apply()
     }
 }
