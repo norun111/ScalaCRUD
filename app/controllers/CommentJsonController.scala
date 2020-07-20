@@ -14,22 +14,19 @@ object CommentJsonController {
 
   case class CommentForm(
       user_id: String,
-      text: String,
-      posted_at: Date
+      text: String
   )
 
   // PostをJSONに変換するためのWritesを定義
   implicit val commentFormWrites = (
     (__ \ "user_id").write[String] and
-      (__ \ "text").write[String] and
-      (__ \ "posted_at").write[Date]
+      (__ \ "text").write[String]
   )(unlift(CommentForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
   implicit val commentFormReads = (
     (__ \ "user_id").read[String] and
-      (__ \ "text").read[String] and
-      (__ \ "posted_at").read[Date]
+      (__ \ "text").read[String]
   )(CommentForm)
 }
 
@@ -49,7 +46,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
-          Comment.create(uuid.toString, form.user_id, form.text, post_id, form.posted_at)
+          Comment.create(uuid.toString, form.user_id, form.text, post_id)
           Ok(Json.obj("result" -> "OK"))
         }
       }
