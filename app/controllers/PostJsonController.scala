@@ -76,7 +76,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           val user = Post.findUserID(form.user_id)
           //Some(User(11111111-1111-1111-1111-111111111111,alice))
-
+          println(user)
           if (user.isDefined) {
             //uuidで保存
             val uuid = UUID.randomUUID
