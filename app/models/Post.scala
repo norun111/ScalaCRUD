@@ -6,10 +6,14 @@ import java.util.UUID
 
 import scalikejdbc.config._
 
-case class Post(text: String, comment_count: Int)
+case class Post(id: String = UUID.randomUUID.toString,
+                text: String,
+                user_id: String,
+                comment_count: Int,
+                posted_at: Date)
 
 //SQLInterpolation
-object Post extends SQLSyntaxSupport[User] {
+object Post {
 
   DBs.setupAll()
 

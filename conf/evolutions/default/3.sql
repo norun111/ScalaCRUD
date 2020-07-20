@@ -7,11 +7,10 @@ CREATE TABLE Comment (
     text text NOT NULL,
     parent_post_id varchar(36) NOT NULL,
     comment_count int NOT NULL,
-    posted_at date,
+    posted_at datetime DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (parent_post_id) REFERENCES Post(id),
     PRIMARY KEY (id)
 );
 
-# --- !Downs
-DROP TABLE IF EXISTS Comment;
+
