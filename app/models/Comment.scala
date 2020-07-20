@@ -3,6 +3,7 @@ package models
 import java.util.{ Date, UUID }
 
 import scalikejdbc._
+import scalikejdbc.config._
 
 case class Comment(
     id: String = UUID.randomUUID.toString,
@@ -15,10 +16,12 @@ case class Comment(
 
 object Comment {
 
+  DBs.setupAll()
+
   //コメント先のPostの情報を取得
   def findPost(post_id: String): Option[Post] = DB readOnly { implicit session =>
     sql"""
-         SELECT id
+         SELECT id, text, user_id, comment_count, posted_at
          FROM post
          WHERE id = ${post_id}
       """
@@ -38,14 +41,13 @@ object Comment {
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
              text: String,
-             parent_post_id: String,
-             comment_count: Int,
+             parent_post_id: String = UUID.randomUUID.toString,
              posted_at: Date): Unit =
     DB localTx { implicit session =>
       sql"""INSERT INTO comment
-                 (id, user_id, parent_post_id, text, comment_count, posted_at)
+                 (id, user_id, text, parent_post_id, comment_count, posted_at)
                  VALUES
-                 (${id},${user_id},${text},${parent_post_id},${comment_count},${posted_at})
+                 (${id} ,${user_id},${text}, ${parent_post_id} , 0 ,${posted_at})
                  """.update().apply()
     }
 
