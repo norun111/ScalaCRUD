@@ -17,7 +17,7 @@ object Post {
 
   DBs.setupAll()
 
-  def findUserID(user_id: String): Option[User] = DB readOnly { implicit session =>
+  def findUser(user_id: String): Option[User] = DB readOnly { implicit session =>
     sql"""
          SELECT id, name
          FROM user
