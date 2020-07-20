@@ -47,6 +47,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
           Comment.create(uuid.toString, form.user_id, form.text, post_id)
+          Comment.addComment(post_id)
           Ok(Json.obj("result" -> "OK"))
         }
       }
