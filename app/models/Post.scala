@@ -9,7 +9,7 @@ import scalikejdbc.config._
 case class Post(text: String, comment_count: Int)
 
 //SQLInterpolation
-object Post extends SQLSyntaxSupport[User] {
+object Post {
 
   DBs.setupAll()
 
