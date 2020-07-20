@@ -45,10 +45,17 @@ class CommentJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          val uuid = UUID.randomUUID
-          Comment.create(uuid.toString, form.user_id, form.text, post_id)
-          Comment.addComment(post_id)
-          Ok(Json.obj("result" -> "OK"))
+          
+          val referencePostId = Comment.findPost(post_id).get.id
+
+          if (post_id == referencePostId) {
+            val uuid = UUID.randomUUID
+            Comment.create(uuid.toString, form.user_id, form.text, post_id)
+            Comment.addComment(post_id)
+            Ok(Json.obj("result" -> "OK"))
+          } else {
+            Ok(Json.obj("result" -> "FAIL"))
+          }
         }
       }
       .recoverTotal { e =>
