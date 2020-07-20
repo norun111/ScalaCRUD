@@ -3,8 +3,11 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
+
 # PostJSON API
-GET         /json/index             controllers.PostJsonController.index
-POST        /json/create            controllers.PostJsonController.create
+GET         /json/index                      controllers.PostJsonController.index
+POST        /json/create                     controllers.PostJsonController.create
 
 # CommentJSON API
+GET         /posts/:post_id/comments         controllers.CommentJsonController.index(id: Long)
+POST        /posts/:post_id/comments/create  controllers.CommentJsonController.create(id: Long)
