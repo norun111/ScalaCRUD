@@ -1,5 +1,3 @@
 package models
 
-class Comment {
-
-}
+class Comment {}
