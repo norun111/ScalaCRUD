@@ -19,23 +19,24 @@ object Comment {
   DBs.setupAll()
 
   //コメント先のPostの情報を取得
-  def findPost(post_id: String): Option[Post] = DB readOnly { implicit session =>
-    sql"""
+  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] = DB readOnly {
+    implicit session =>
+      sql"""
          SELECT id, text, user_id, comment_count, posted_at
          FROM post
          WHERE id = ${post_id}
       """
-      .map { rs =>
-        Post(
-          id = rs.string("id"),
-          text = rs.string("text"),
-          user_id = rs.string("user_id"),
-          comment_count = rs.int("comment_count"),
-          posted_at = rs.timestamp("posted_at")
-        )
-      }
-      .single()
-      .apply()
+        .map { rs =>
+          Post(
+            id = rs.string("id"),
+            text = rs.string("text"),
+            user_id = rs.string("user_id"),
+            comment_count = rs.int("comment_count"),
+            posted_at = rs.timestamp("posted_at")
+          )
+        }
+        .single()
+        .apply()
   }
 
   def create(id: String = UUID.randomUUID.toString,
@@ -60,7 +61,6 @@ object Comment {
             ON ${post_id} = post.id
     """.update().apply()
     }
-
 
   //親Postのコメント数を+1
   def addComment(post_id: String = UUID.randomUUID.toString) =
