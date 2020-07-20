@@ -5,7 +5,7 @@ import play.api.libs.functional.syntax._
 
 import controllers.PostJsonController.PostForm
 import javax.inject.Inject
-import models.Comment
+import models._
 import play.api.libs.json._
 import play.api.mvc.{ AbstractController, ControllerComponents }
 import scalikejdbc._
@@ -46,16 +46,24 @@ class CommentJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-
           val referencePost = Comment.findPost(post_id)
           val referencePostId = referencePost.get.id
 
-          if (post_id == referencePostId) {
-            val uuid = UUID.randomUUID
-            Comment.create(uuid.toString, form.user_id, form.text, post_id)
-            Comment.addComment(post_id)
-            Ok(Json.obj("result" -> "OK"))
+          val referenceUser = Post.findUser(form.user_id)
+
+          if (referenceUser.isDefined) {
+            if (post_id == referencePostId) {
+              val uuid = UUID.randomUUID
+              Comment.create(uuid.toString, form.user_id, form.text, post_id)
+              Comment.addComment(post_id)
+              Ok(Json.obj("result" -> "OK"))
+            } else {
+              
+              //エラー処理
+              Ok(Json.obj("result" -> "FAIL"))
+            }
           } else {
+            //エラー処理
             Ok(Json.obj("result" -> "FAIL"))
           }
         }
