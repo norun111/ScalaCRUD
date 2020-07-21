@@ -34,7 +34,6 @@ object PostJsonController {
 
 }
 
-
 class PostJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
