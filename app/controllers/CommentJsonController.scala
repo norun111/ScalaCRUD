@@ -22,7 +22,7 @@ object CommentJsonController {
       posted_at: Date
   )
 
-  implicit val commentIndexWrites = (
+  implicit val commentWrites: Writes[CommentIndex] = (
     (__ \ "id").write[String] and
       (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
@@ -31,14 +31,12 @@ object CommentJsonController {
       (__ \ "posted_at").write[Date]
   )(unlift(CommentIndex.unapply))
 
-  implicit val commentIndexReads = (
-    (__ \ "id").read[String] and
-      (__ \ "user_id").read[String] and
-      (__ \ "text").read[String] and
-      (__ \ "parent_post_id").read[String] and
-      (__ \ "comment_count").read[Int] and
-      (__ \ "posted_at").read[Date]
-  )(CommentIndex)
+  case class CommentFormatter(format: String, comments: Seq[CommentIndex])
+
+  implicit val commentFormatWrites: Writes[CommentFormatter] = (
+    (__ \ "format").write[String] and
+      (__ \ "comments").write[Seq[CommentIndex]]
+  )(unlift(CommentFormatter.unapply))
 
   case class CommentForm(
       user_id: String,
@@ -66,27 +64,8 @@ class CommentJsonController @Inject()(components: ControllerComponents)
 
   //index API
   def index(post_id: String) = Action { implicit request =>
-    DB readOnly { implicit session =>
-      val comments = sql"""
-           select id, user_id, text, parent_post_id, comment_count, posted_at
-           from comment
-           where parent_post_id = ${post_id}
-         """
-        .map { rs =>
-          (rs.string("id"),
-           rs.string("user_id"),
-           rs.string("text"),
-           rs.string("parent_post_id"),
-           rs.int("comment_count"),
-           rs.dateTime("posted_at"),
-          )
-        }
-        .list()
-        .apply()
-
-      Ok(Json.obj("comments" -> Json.toJson(comments)))
-    }
-
+    val com = Comment.findAllComment(post_id)
+    Ok(Json.toJson(CommentFormatter("json", com)))
   }
 
   //create API
