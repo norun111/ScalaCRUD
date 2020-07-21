@@ -2,8 +2,10 @@ package models
 
 import java.util.{ Date, UUID }
 
+import controllers.CommentJsonController.CommentIndex
 import scalikejdbc._
 import scalikejdbc.config._
+import play.api.libs.json._
 
 case class Comment(
     id: String = UUID.randomUUID.toString,
@@ -18,9 +20,30 @@ object Comment {
 
   DBs.setupAll()
 
+  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[Comment] =
+    DB readOnly { implicit session =>
+      sql"""
+         SELECT *
+         FROM comment
+         WHERE parent_post_id = ${post_id}
+      """
+        .map { rs =>
+          Comment(
+            id = rs.string("id"),
+            user_id = rs.string("user_id"),
+            text = rs.string("text"),
+            parent_post_id = rs.string("parent_post_id"),
+            comment_count = rs.int("comment_count"),
+            posted_at = rs.timestamp("posted_at")
+          )
+        }
+        .list()
+        .apply()
+    }
+
   //コメント先のPostの情報を取得
-  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] = DB readOnly {
-    implicit session =>
+  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] =
+    DB readOnly { implicit session =>
       sql"""
          SELECT id, text, user_id, comment_count, posted_at
          FROM post
@@ -37,7 +60,8 @@ object Comment {
         }
         .single()
         .apply()
-  }
+
+    }
 
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
