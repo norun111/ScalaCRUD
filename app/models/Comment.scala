@@ -96,17 +96,6 @@ object Comment {
                  """.update().apply()
     }
 
-  // not used
-  //値を0で挿入し、その後にpost.comment_count + 1でupdate
-  def setCommentCount(post_id: String = UUID.randomUUID.toString) =
-    DB autoCommit { implicit session =>
-      sql"""UPDATE comment SET comment.comment_count = post.comment_count + 1,
-            FROM comment
-            INNER JOIN post
-            ON ${post_id} = post.id
-    """.update().apply()
-    }
-
   //親Postのコメント数を+1
   def addCommentCount(post_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
@@ -122,5 +111,20 @@ object Comment {
     WHERE id = ${comment_id}
     """.update().apply()
     }
+
+
+  /*
+  // not used
+  //値を0で挿入し、その後にpost.comment_count + 1でupdate
+  def setCommentCount(post_id: String = UUID.randomUUID.toString) =
+    DB autoCommit { implicit session =>
+      sql"""UPDATE comment SET comment.comment_count = post.comment_count + 1,
+            FROM comment
+            INNER JOIN post
+            ON ${post_id} = post.id
+    """.update().apply()
+    }
+
+   */
 
 }
