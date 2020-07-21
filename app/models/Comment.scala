@@ -111,8 +111,6 @@ object Comment {
     WHERE id = ${comment_id}
     """.update().apply()
     }
-
-
   /*
   // not used
   //値を0で挿入し、その後にpost.comment_count + 1でupdate
@@ -125,6 +123,6 @@ object Comment {
     """.update().apply()
     }
 
-   */
+ */
 
 }
