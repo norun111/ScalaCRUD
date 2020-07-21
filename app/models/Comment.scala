@@ -20,7 +20,7 @@ object Comment {
 
   DBs.setupAll()
 
-  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[Comment] =
+  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[CommentIndex] =
     DB readOnly { implicit session =>
       sql"""
          SELECT *
@@ -28,7 +28,7 @@ object Comment {
          WHERE parent_post_id = ${post_id}
       """
         .map { rs =>
-          Comment(
+          CommentIndex(
             id = rs.string("id"),
             user_id = rs.string("user_id"),
             text = rs.string("text"),
