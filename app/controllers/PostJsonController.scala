@@ -13,28 +13,18 @@ import java.util.Date
 object PostJsonController {
 
   //Post情報を受け取る為のケースクラス
-  case class PostForm(id: String,
-                      user_id: String,
-                      text: String,
-                      comment_count: Int,
-                      posted_at: Date)
+  case class PostForm(user_id: String, text: String)
 
   // PostをJSONに変換するためのWritesを定義
   implicit val postFormWrites = (
-    (__ \ "id").write[String] and
-      (__ \ "user_id").write[String] and
-      (__ \ "text").write[String] and
-      (__ \ "comment_count").write[Int] and
-      (__ \ "posted_at").write[Date]
+    (__ \ "user_id").write[String] and
+      (__ \ "text").write[String]
   )(unlift(PostForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
   implicit val postFormReads = (
-    (__ \ "id").read[String] and
-      (__ \ "user_id").read[String] and
-      (__ \ "text").read[String] and
-      (__ \ "comment_count").read[Int] and
-      (__ \ "posted_at").read[Date]
+    (__ \ "user_id").read[String] and
+      (__ \ "text").read[String]
   )(PostForm)
 
 }
@@ -86,10 +76,9 @@ class PostJsonController @Inject()(components: ControllerComponents)
           if (user.isDefined) {
             //uuidで保存
             val uuid = UUID.randomUUID
-            Post.create(uuid.toString, form.user_id, form.text, form.comment_count, form.posted_at)
+            Post.create(uuid.toString, form.user_id, form.text)
 
             Ok(Json.obj("result" -> "OK"))
-            Ok(Json.obj("post" -> form))
           } else {
             //後々：エラー処理しないといけない(必須)
             Ok(Json.obj("post" -> form))
