@@ -94,33 +94,48 @@ class CommentJsonController @Inject()(components: ControllerComponents)
     request.body
       .validate[CommentForm]
       .map { form =>
-        // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          val referencePost = Comment.findPost(post_id)
-          val referencePostId = referencePost.get.id
+          val uuid = UUID.randomUUID
 
-          val referenceUser = Post.findUser(form.user_id)
+          Comment.findPost(post_id) match {
+            case Some(post) =>
+              println(post)
+              Post.findUser(form.user_id) match {
+                case Some(user) =>
+                  println(user)
+                  Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                  Comment.addCommentCount(post_id)
+                  Ok(Json.obj("result" -> "OK"))
 
-          if (referenceUser.isDefined) {
-            if (post_id == referencePostId) {
-              val uuid = UUID.randomUUID
-              Comment.create(uuid.toString, form.user_id, form.text, post_id)
-              Comment.addComment(post_id)
-              Ok(Json.obj("result" -> "OK"))
-            } else {
+                case None =>
+                  NotFound //エラーハンドル
+              }
 
-              //エラー処理
-              Ok(Json.obj("result" -> "FAIL"))
-            }
-          } else {
-            //エラー処理
-            Ok(Json.obj("result" -> "FAIL"))
+            case None =>
+              Comment.findComment(post_id) match {
+                case Some(comment) =>
+                  println(comment)
+
+                  Post.findUser(form.user_id) match {
+                    case Some(user) =>
+                      println(user)
+                      Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                      Comment.addCommentCountOnComment(post_id)
+                      Ok(Json.obj("result" -> "OK"))
+
+                    case None =>
+                      NotFound //エラーハンドル
+                  }
+
+                case None =>
+                  NotFound //エラーハンドル
+              }
           }
         }
       }
       .recoverTotal { e =>
-        // NGの場合はバリデーションエラーを返す
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
+
 }

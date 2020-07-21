@@ -10,6 +10,11 @@ import models._
 import java.util.UUID
 import java.util.Date
 
+import controllers.PostJsonController.PostForm
+import play.api.libs.json.Json
+import play.api.libs.json.JsValue
+import play.api.libs.json.Writes
+
 object PostJsonController {
 
   //Post情報を受け取る為のケースクラス
@@ -58,9 +63,6 @@ class PostJsonController @Inject()(components: ControllerComponents)
   //後々：posts:[{}]この形式に変換したい
   }
 
-//    validate[PostForm]は一覧表示 PostFormは名前的にcreateにしよう
-  //もう一つcreate用のcase classを作成　そこでimplicitを使用
-
   //create API
   def create = Action(parse.json) { implicit request =>
     request.body
@@ -68,20 +70,18 @@ class PostJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          val user = Post.findUser(form.user_id)
           //Some(User(11111111-1111-1111-1111-111111111111,alice))
 
-          println(user.get.name) //後で削除：User nameの取得
+          Post.findUser(form.user_id) match {
+            case Some(user) =>
+//              println(user)
+              val uuid = UUID.randomUUID
+              Post.create(uuid.toString, form.user_id, form.text)
 
-          if (user.isDefined) {
-            //uuidで保存
-            val uuid = UUID.randomUUID
-            Post.create(uuid.toString, form.user_id, form.text)
+              Ok(Json.obj("result" -> "OK"))
 
-            Ok(Json.obj("result" -> "OK"))
-          } else {
-            //後々：エラー処理しないといけない(必須)
-            Ok(Json.obj("post" -> form))
+            case None =>
+              NotFound
           }
         }
       }
