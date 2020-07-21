@@ -108,13 +108,12 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   Ok(Json.obj("result" -> "OK"))
 
                 case None =>
-                  NotFound //エラーハンドル
+                  BadRequest((Json.toJson(Response(Meta(400, s"${form.user_id} not found")))))
               }
 
             case None =>
               Comment.findComment(post_id) match {
                 case Some(comment) =>
-                  println(comment)
 
                   Post.findUser(form.user_id) match {
                     case Some(user) =>
@@ -124,11 +123,11 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                       Ok(Json.obj("result" -> "OK"))
 
                     case None =>
-                      NotFound //エラーハンドル
+                      BadRequest((Json.toJson(Response(Meta(400, s"${form.user_id} not found")))))
                   }
 
                 case None =>
-                  NotFound //エラーハンドル
+                  BadRequest((Json.toJson(Response(Meta(400, s"post_id : ${form.user_id} does not exist in both comment and post tables")))))
               }
           }
         }
