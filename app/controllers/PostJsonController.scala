@@ -4,16 +4,10 @@ import javax.inject.Inject
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import akka.http.scaladsl.model._
 import scalikejdbc._
 import models._
 import java.util.UUID
-import java.util.Date
-
-import controllers.PostJsonController.PostForm
 import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import play.api.libs.json.Writes
 
 object PostJsonController {
 
@@ -51,7 +45,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
            rs.string("user_id"),
            rs.string("text"),
            rs.int("comment_count"),
-           rs.timestamp("posted_at"),
+           rs.dateTime("posted_at"),
           )
         }
         .list()
@@ -74,14 +68,23 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
           Post.findUser(form.user_id) match {
             case Some(user) =>
-//              println(user)
-              val uuid = UUID.randomUUID
-              Post.create(uuid.toString, form.user_id, form.text)
-
-              Ok(Json.obj("result" -> "OK"))
+              if (form.text.length == 0) {
+                //文字列長が0の状態
+                BadRequest(
+                  (Json.toJson(Response(Meta(400, "Cannot be registered with null text")))))
+              } else if (form.text.length >= 101) {
+                //文字列長が101の状態
+                BadRequest((Json.toJson(
+                  Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+              } else {
+                val uuid = UUID.randomUUID
+                Post.create(uuid.toString, form.user_id, form.text)
+                Ok(Json.obj("result" -> "OK"))
+              }
 
             case None =>
-              NotFound
+              //存在しないidの状態
+              BadRequest((Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
           }
         }
       }
