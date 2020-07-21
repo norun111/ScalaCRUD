@@ -10,6 +10,11 @@ import models._
 import java.util.UUID
 import java.util.Date
 
+import controllers.PostJsonController.PostForm
+import play.api.libs.json.Json
+import play.api.libs.json.JsValue
+import play.api.libs.json.Writes
+
 object PostJsonController {
 
   //Post情報を受け取る為のケースクラス
@@ -28,6 +33,7 @@ object PostJsonController {
   )(PostForm)
 
 }
+
 
 class PostJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
@@ -71,17 +77,16 @@ class PostJsonController @Inject()(components: ControllerComponents)
           val user = Post.findUser(form.user_id)
           //Some(User(11111111-1111-1111-1111-111111111111,alice))
 
-          println(user.get.name) //後で削除：User nameの取得
-
           if (user.isDefined) {
+            println(user)
             //uuidで保存
             val uuid = UUID.randomUUID
             Post.create(uuid.toString, form.user_id, form.text)
 
-            Ok(Json.obj("result" -> "OK"))
+            Ok(Json.obj("posts" -> "OK"))
           } else {
             //後々：エラー処理しないといけない(必須)
-            Ok(Json.obj("post" -> form))
+            BadRequest("Expecting Json data")
           }
         }
       }
