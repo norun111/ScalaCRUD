@@ -78,7 +78,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
            rs.string("text"),
            rs.string("parent_post_id"),
            rs.int("comment_count"),
-           rs.timestamp("posted_at"),
+           rs.dateTime("posted_at"),
           )
         }
         .list()
