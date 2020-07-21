@@ -12,23 +12,6 @@ import scalikejdbc._
 
 object CommentJsonController {
 
-  case class CommentForm(
-      user_id: String,
-      text: String
-  )
-
-  // PostをJSONに変換するためのWritesを定義
-  implicit val commentFormWrites = (
-    (__ \ "user_id").write[String] and
-      (__ \ "text").write[String]
-  )(unlift(CommentForm.unapply))
-
-  // JSONをPostFormに変換するためのReadsを定義
-  implicit val commentFormReads = (
-    (__ \ "user_id").read[String] and
-      (__ \ "text").read[String]
-  )(CommentForm)
-
   // Index API Json
   case class CommentIndex(
       id: String = UUID.randomUUID.toString,
@@ -56,6 +39,24 @@ object CommentJsonController {
       (__ \ "comment_count").read[Int] and
       (__ \ "posted_at").read[Date]
   )(CommentIndex)
+
+  case class CommentForm(
+      user_id: String,
+      text: String
+  )
+
+  // PostをJSONに変換するためのWritesを定義
+  implicit val commentFormWrites = (
+    (__ \ "user_id").write[String] and
+      (__ \ "text").write[String]
+  )(unlift(CommentForm.unapply))
+
+  // JSONをPostFormに変換するためのReadsを定義
+  implicit val commentFormReads = (
+    (__ \ "user_id").read[String] and
+      (__ \ "text").read[String]
+  )(CommentForm)
+
 }
 
 class CommentJsonController @Inject()(components: ControllerComponents)
@@ -65,8 +66,8 @@ class CommentJsonController @Inject()(components: ControllerComponents)
 
   //index API
   def index(post_id: String) = Action { implicit request =>
-    val comments = DB readOnly { implicit session =>
-      sql"""
+    DB readOnly { implicit session =>
+      val comments = sql"""
            select id, user_id, text, parent_post_id, comment_count, posted_at
            from comment
            where parent_post_id = ${post_id}
@@ -82,13 +83,14 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         }
         .list()
         .apply()
+
+      Ok(Json.obj("comments" -> Json.toJson(comments)))
     }
-    Ok(Json.obj("comments" -> comments))
+
   }
 
   //create API
   def create(post_id: String) = Action(parse.json) { implicit request =>
-    println(post_id.getClass)
     request.body
       .validate[CommentForm]
       .map { form =>
