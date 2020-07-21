@@ -105,16 +105,14 @@ class CommentJsonController @Inject()(components: ControllerComponents)
             if (post_id == referencePostId) {
               val uuid = UUID.randomUUID
               Comment.create(uuid.toString, form.user_id, form.text, post_id)
-              Comment.addComment(post_id)
+              Comment.addCommentCount(post_id)
               Ok(Json.obj("result" -> "OK"))
             } else {
-
-              //エラー処理
-              Ok(Json.obj("result" -> "FAIL"))
+              BadRequest("Expecting Json data")
             }
           } else {
             //エラー処理
-            Ok(Json.obj("result" -> "FAIL"))
+            BadRequest("Expecting Json data")
           }
         }
       }
@@ -123,4 +121,5 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
+
 }
