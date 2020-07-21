@@ -33,13 +33,9 @@ object Post {
       .apply()
   }
 
-  def create(id: String = UUID.randomUUID.toString,
-             user_id: String,
-             text: String,
-             comment_count: Int,
-             posted_at: Date): Unit =
+  def create(id: String = UUID.randomUUID.toString, user_id: String, text: String): Unit =
     DB localTx { implicit session =>
-      sql"""INSERT INTO post (id, user_id, text, comment_count, posted_at) VALUES (${id},${user_id},${text},${comment_count},${posted_at})"""
+      sql"""INSERT INTO post (id, user_id, text, comment_count) VALUES (${id},${user_id},${text},0)"""
         .update()
         .apply()
     }
