@@ -68,15 +68,21 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
           Post.findUser(form.user_id) match {
             case Some(user) =>
-//              println(user)
-              val uuid = UUID.randomUUID
-              Post.create(uuid.toString, form.user_id, form.text)
-
-              Ok(Json.obj("result" -> "OK"))
-              Ok(Json.toJson(Response(Meta(200, "OK"), Some(Json.obj("posts" -> "OK")))))
+              if (form.text.length == 0) {
+                //文字列長が0の状態
+                BadRequest((Json.toJson(Response(Meta(400, "Cannot be registered with an null text")))))
+              } else if (form.text.length >= 101) {
+                //文字列長が101の状態
+                BadRequest((Json.toJson(Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+              } else {
+                val uuid = UUID.randomUUID
+                Post.create(uuid.toString, form.user_id, form.text)
+                Ok(Json.obj("result" -> "OK"))
+              }
 
             case None =>
-              NotFound
+              //存在しないidの状態
+              BadRequest((Json.toJson(Response(Meta(400, s"${form.user_id} not found")))))
           }
         }
       }
