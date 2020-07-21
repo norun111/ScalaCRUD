@@ -99,16 +99,16 @@ class CommentJsonController @Inject()(components: ControllerComponents)
 
           Comment.findPost(post_id) match {
             case Some(post) =>
-
               Post.findUser(form.user_id) match {
                 case Some(user) =>
-
                   if (form.text.length == 0) {
                     //文字列長が0の状態
-                    BadRequest((Json.toJson(Response(Meta(400, "Cannot be registered with an null text")))))
+                    BadRequest(
+                      (Json.toJson(Response(Meta(400, "Cannot be registered with null text")))))
                   } else if (form.text.length >= 101) {
                     //文字列長が101の状態
-                    BadRequest((Json.toJson(Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+                    BadRequest((Json.toJson(
+                      Response(Meta(400, "Cannot be registered with more than 101 characters")))))
                   } else {
                     Comment.create(uuid.toString, form.user_id, form.text, post_id)
                     Comment.addCommentCount(post_id)
@@ -116,26 +116,36 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   }
 
                 case None =>
-                  BadRequest((Json.toJson(Response(Meta(400, s"${form.user_id} not found")))))
+                  BadRequest((Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
               }
 
             case None =>
               Comment.findComment(post_id) match {
                 case Some(comment) =>
-
                   Post.findUser(form.user_id) match {
                     case Some(user) =>
-                      println(user)
-                      Comment.create(uuid.toString, form.user_id, form.text, post_id)
-                      Comment.addCommentCountOnComment(post_id)
-                      Ok(Json.obj("result" -> "OK"))
+                      if (form.text.length == 0) {
+                        //文字列長が0の状態
+                        BadRequest((Json.toJson(
+                          Response(Meta(400, "Cannot be registered with an null text")))))
+                      } else if (form.text.length >= 101) {
+                        //文字列長が101の状態
+                        BadRequest((Json.toJson(Response(
+                          Meta(400, "Cannot be registered with more than 101 characters")))))
+                      } else {
+                        Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                        Comment.addCommentCountOnComment(post_id)
+                        Ok(Json.obj("result" -> "OK"))
+                      }
 
                     case None =>
                       BadRequest((Json.toJson(Response(Meta(400, s"${form.user_id} not found")))))
                   }
 
                 case None =>
-                  BadRequest((Json.toJson(Response(Meta(400, s"post_id : ${form.user_id} does not exist in both comment and post tables")))))
+                  BadRequest((Json.toJson(Response(Meta(
+                    400,
+                    s"post_id : ${form.user_id} does not exist in both comment and post tables")))))
               }
           }
         }
