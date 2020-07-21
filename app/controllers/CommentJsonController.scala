@@ -127,7 +127,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                       if (form.text.length == 0) {
                         //文字列長が0の状態
                         BadRequest((Json.toJson(
-                          Response(Meta(400, "Cannot be registered with an null text")))))
+                          Response(Meta(400, "Cannot be registered with null text")))))
                       } else if (form.text.length >= 101) {
                         //文字列長が101の状態
                         BadRequest((Json.toJson(Response(
