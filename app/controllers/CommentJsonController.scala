@@ -96,24 +96,61 @@ class CommentJsonController @Inject()(components: ControllerComponents)
       .map { form =>
         // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          val referencePost = Comment.findPost(post_id)
-          val referencePostId = referencePost.get.id
+          val uuid = UUID.randomUUID
 
-          val referenceUser = Post.findUser(form.user_id)
+          Comment.findPost(post_id) match {
+            case Some(post) =>
+              println(post)
+              Post.findUser(form.user_id) match {
+                case Some(user) =>
+                  println(user)
+                  Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                  Comment.addCommentCount(post_id)
+                  Ok(Json.obj("result" -> "OK"))
 
-          if (referenceUser.isDefined) {
-            if (post_id == referencePostId) {
-              val uuid = UUID.randomUUID
-              Comment.create(uuid.toString, form.user_id, form.text, post_id)
-              Comment.addCommentCount(post_id)
-              Ok(Json.obj("result" -> "OK"))
-            } else {
-              BadRequest("Expecting Json data")
-            }
-          } else {
-            //エラー処理
-            BadRequest("Expecting Json data")
+                case None =>
+                  NotFound
+              }
+
+            case None =>
+              Comment.findComment(post_id) match {
+                case Some(comment) =>
+                  println(comment)
+
+                  Post.findUser(form.user_id) match {
+                    case Some(user) =>
+                      println(user)
+                      Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                      Comment.addCommentCountOnComment(post_id)
+                      Ok(Json.obj("result" -> "OK"))
+
+                    case None =>
+                      NotFound
+                  }
+
+                case None =>
+                  NotFound
+              }
           }
+
+//          val referencePost = Comment.findPost(post_id)
+//          val referencePostId = referencePost.get.id
+//
+//          val referenceUser = Post.findUser(form.user_id)
+//
+//          if (referenceUser.isDefined) {
+//            if (post_id == referencePostId) {
+//              val uuid = UUID.randomUUID
+//              Comment.create(uuid.toString, form.user_id, form.text, post_id)
+//              Comment.addCommentCount(post_id)
+//              Ok(Json.obj("result" -> "OK"))
+//            } else {
+//              BadRequest("Expecting Json data")
+//            }
+//          } else {
+//            //エラー処理
+//            BadRequest("Expecting Json data")
+//          }
         }
       }
       .recoverTotal { e =>
