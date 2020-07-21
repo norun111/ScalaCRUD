@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS User;
 CREATE TABLE Post (
     id UUID DEFAULT RANDOM_UUID(),
     user_id bigint(20),
-    text text NOT NULL,
+    text varchar(255) NOT NULL,
     comment_count int NOT NULL,
     posted_at date,
     FOREIGN KEY (user_id) REFERENCES User(id),
