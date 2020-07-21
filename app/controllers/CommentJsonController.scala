@@ -38,15 +38,6 @@ object CommentJsonController {
       (__ \ "comments").write[Seq[CommentIndex]]
   )(unlift(CommentFormatter.unapply))
 
-//  implicit val commentIndexWrites = (
-//    (__ \ "id").write[String] and
-//      (__ \ "user_id").write[String] and
-//      (__ \ "text").write[String] and
-//      (__ \ "parent_post_id").write[String] and
-//      (__ \ "comment_count").write[Int] and
-//      (__ \ "posted_at").write[Date]
-//  )(unlift(Comment.unapply))
-
   case class CommentForm(
       user_id: String,
       text: String
