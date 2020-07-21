@@ -94,7 +94,6 @@ class CommentJsonController @Inject()(components: ControllerComponents)
     request.body
       .validate[CommentForm]
       .map { form =>
-        // OKの場合はユーザを登録
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
 
@@ -109,7 +108,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   Ok(Json.obj("result" -> "OK"))
 
                 case None =>
-                  NotFound
+                  NotFound //エラーハンドル
               }
 
             case None =>
@@ -125,36 +124,16 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                       Ok(Json.obj("result" -> "OK"))
 
                     case None =>
-                      NotFound
+                      NotFound //エラーハンドル
                   }
 
                 case None =>
-                  NotFound
+                  NotFound //エラーハンドル
               }
           }
-
-//          val referencePost = Comment.findPost(post_id)
-//          val referencePostId = referencePost.get.id
-//
-//          val referenceUser = Post.findUser(form.user_id)
-//
-//          if (referenceUser.isDefined) {
-//            if (post_id == referencePostId) {
-//              val uuid = UUID.randomUUID
-//              Comment.create(uuid.toString, form.user_id, form.text, post_id)
-//              Comment.addCommentCount(post_id)
-//              Ok(Json.obj("result" -> "OK"))
-//            } else {
-//              BadRequest("Expecting Json data")
-//            }
-//          } else {
-//            //エラー処理
-//            BadRequest("Expecting Json data")
-//          }
         }
       }
       .recoverTotal { e =>
-        // NGの場合はバリデーションエラーを返す
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
