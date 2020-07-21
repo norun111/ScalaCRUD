@@ -4,16 +4,10 @@ import javax.inject.Inject
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import akka.http.scaladsl.model._
 import scalikejdbc._
 import models._
 import java.util.UUID
-import java.util.Date
-
-import controllers.PostJsonController.PostForm
 import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import play.api.libs.json.Writes
 
 object PostJsonController {
 
@@ -79,6 +73,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
               Post.create(uuid.toString, form.user_id, form.text)
 
               Ok(Json.obj("result" -> "OK"))
+              Ok(Json.toJson(Response(Meta(200, "OK"), Some(Json.obj("posts" -> "OK")))))
 
             case None =>
               NotFound
