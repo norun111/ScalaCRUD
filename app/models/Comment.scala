@@ -87,10 +87,13 @@ object Comment {
     }
 
   //親Postのコメント数を+1
-  def addComment(post_id: String = UUID.randomUUID.toString) =
+  def addCommentCount(post_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
       sql"""UPDATE post SET comment_count = comment_count + 1
     WHERE id = ${post_id}
     """.update().apply()
     }
+
+  def addComment(post_id: String = UUID.randomUUID.toString, comment_id: String = UUID.randomUUID.toString) =
+
 }
