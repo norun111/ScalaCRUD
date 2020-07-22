@@ -41,27 +41,6 @@ object Comment {
         .apply()
     }
 
-  //コメント先のPostの情報を検索
-  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] =
-    DB readOnly { implicit session =>
-      sql"""
-         SELECT id, text, user_id, comment_count, posted_at
-         FROM post
-         WHERE id = ${post_id}
-      """
-        .map { rs =>
-          Post(
-            id = rs.string("id"),
-            text = rs.string("text"),
-            user_id = rs.string("user_id"),
-            comment_count = rs.int("comment_count"),
-            posted_at = rs.timestamp("posted_at")
-          )
-        }
-        .single()
-        .apply()
-    }
-
   //コメント先のコメントを検索
   def findComment(comment_id: String = UUID.randomUUID.toString): Option[Comment] =
     DB readOnly { implicit session =>
