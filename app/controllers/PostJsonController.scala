@@ -45,7 +45,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
            rs.string("user_id"),
            rs.string("text"),
            rs.int("comment_count"),
-           rs.dateTime("posted_at"),
+           rs.localDateTime("posted_at"),
           )
         }
         .list()
