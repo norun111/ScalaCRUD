@@ -31,6 +31,7 @@ object CommentJsonController {
       (__ \ "posted_at").write[Date]
   )(unlift(CommentIndex.unapply))
 
+  // comment formatter
   case class CommentFormatter(format: String, comments: Seq[CommentIndex])
 
   implicit val commentFormatWrites: Writes[CommentFormatter] = (
