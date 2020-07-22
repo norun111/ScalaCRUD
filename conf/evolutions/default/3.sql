@@ -9,7 +9,6 @@ CREATE TABLE Comment (
     comment_count int NOT NULL,
     posted_at datetime DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (parent_post_id) REFERENCES Post(id),
     PRIMARY KEY (id)
 );
 
