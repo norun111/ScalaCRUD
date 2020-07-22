@@ -77,9 +77,9 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
 
-          Comment.findPost(post_id) match {
+          Post.findPost(post_id) match {
             case Some(post) =>
-              Post.findUser(form.user_id) match {
+              User.findUser(form.user_id) match {
                 case Some(user) =>
                   if (form.text.length == 0) {
                     //文字列長が0の状態
@@ -103,7 +103,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
             case None =>
               Comment.findComment(post_id) match {
                 case Some(comment) =>
-                  Post.findUser(form.user_id) match {
+                  User.findUser(form.user_id) match {
                     case Some(user) =>
                       if (form.text.length == 0) {
                         //文字列長が0の状態
