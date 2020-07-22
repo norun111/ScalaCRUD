@@ -66,7 +66,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           //Some(User(11111111-1111-1111-1111-111111111111,alice))
 
-          Post.findUser(form.user_id) match {
+          User.findUser(form.user_id) match {
             case Some(user) =>
               if (form.text.length == 0) {
                 //文字列長が0の状態
