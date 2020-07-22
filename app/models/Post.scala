@@ -17,21 +17,25 @@ object Post {
 
   DBs.setupAll()
 
-  def findUser(user_id: String): Option[User] = DB readOnly { implicit session =>
-    sql"""
-         SELECT id, name
-         FROM user
-         WHERE id = ${user_id}
+  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] =
+    DB readOnly { implicit session =>
+      sql"""
+         SELECT id, text, user_id, comment_count, posted_at
+         FROM post
+         WHERE id = ${post_id}
       """
-      .map { rs =>
-        User(
-          id = rs.string("id"),
-          name = rs.string("name")
-        )
-      }
-      .single()
-      .apply()
-  }
+        .map { rs =>
+          Post(
+            id = rs.string("id"),
+            text = rs.string("text"),
+            user_id = rs.string("user_id"),
+            comment_count = rs.int("comment_count"),
+            posted_at = rs.timestamp("posted_at")
+          )
+        }
+        .single()
+        .apply()
+    }
 
   def create(id: String = UUID.randomUUID.toString, user_id: String, text: String): Unit =
     DB localTx { implicit session =>
