@@ -96,8 +96,8 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   }
 
                 case None =>
-                  BadRequest(
-                    (Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
+                  BadRequest((Json.toJson(
+                    Response(Meta(400, s"User is notfound. UserId : ${form.user_id}")))))
               }
 
             case None =>
@@ -115,7 +115,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                           Meta(400, "Cannot be registered with more than 101 characters")))))
                       } else {
                         Comment.create(uuid.toString, form.user_id, form.text, post_id)
-                        Comment.addCommentCountOnComment(post_id)
+                        Comment.updateCommentCount(post_id)
                         Ok(Json.obj("result" -> "OK"))
                       }
 
