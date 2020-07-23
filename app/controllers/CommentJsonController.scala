@@ -66,6 +66,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
   //index API
   def index(post_id: String) = Action { implicit request =>
     val comments = Comment.findAllComment(post_id)
+//    Ok(Json.obj("comments" -> Json.toJson(comments)))
     Ok(Json.toJson(CommentFormatter("json", comments)))
   }
 
