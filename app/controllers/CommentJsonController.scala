@@ -1,9 +1,7 @@
 package controllers
 
-import java.util.{ Date, UUID }
+import java.util._
 import play.api.libs.functional.syntax._
-
-import controllers.PostJsonController.PostForm
 import javax.inject.Inject
 import models._
 import play.api.libs.json._
@@ -31,13 +29,13 @@ object CommentJsonController {
       (__ \ "posted_at").write[Date]
   )(unlift(CommentIndex.unapply))
 
-  // comment formatter
-  case class CommentFormatter(format: String, comments: Seq[CommentIndex])
-
-  implicit val commentFormatWrites: Writes[CommentFormatter] = (
-    (__ \ "format").write[String] and
-      (__ \ "comments").write[Seq[CommentIndex]]
-  )(unlift(CommentFormatter.unapply))
+  // comment formatter no used
+//  case class CommentFormatter(format: String, comments: Seq[CommentIndex])
+//
+//  implicit val commentFormatWrites: Writes[CommentFormatter] = (
+//    (__ \ "format").write[String] and
+//      (__ \ "comments").write[Seq[CommentIndex]]
+//  )(unlift(CommentFormatter.unapply))
 
   case class CommentForm(
       user_id: String,
@@ -66,7 +64,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
   //index API
   def index(post_id: String) = Action { implicit request =>
     val comments = Comment.findAllComment(post_id)
-    Ok(Json.toJson(CommentFormatter("json", comments)))
+    Ok(Json.obj("comments" -> Json.toJson(comments)))
   }
 
   //create API
