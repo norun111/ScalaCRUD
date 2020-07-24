@@ -56,7 +56,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
   //index API
   def index = Action { implicit request =>
-    DB readOnly { implicit session =>
+    val posts = DB readOnly { implicit session =>
       sql"""
            select id, user_id, text, comment_count, posted_at from post
          """
@@ -71,7 +71,9 @@ class PostJsonController @Inject()(components: ControllerComponents)
         .list()
         .apply()
     }
-    val posts = Post.findAllPost
+//    val pos = Post.findAllPost
+//    println(pos)
+
     Ok(Json.obj("posts" -> Json.toJson(posts)))
   // Postの一覧をJSONで返す
 //    Ok(Json.obj("posts" -> posts))
