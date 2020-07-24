@@ -11,10 +11,25 @@ case class Post(id: String = UUID.randomUUID.toString,
                 text: String,
                 user_id: String,
                 comment_count: Int,
-                posted_at: Date)
+                posted_at: Date,
+                comments: Seq[Comment] = Nil)
 
 //SQLInterpolation
-object Post {
+object Post extends SQLSyntaxSupport[Post] {
+
+  override val tableName = "post"
+//  def apply(p: SyntaxProvider[Post])(rs: WrappedResultSet): Post = apply(p.resultName)(rs)
+  def apply(p: ResultName[Post])(rs: WrappedResultSet) = new Post(
+    rs.string("id"),
+    rs.string("text"),
+    rs.string("user_id"),
+    rs.int("comment_count"),
+    rs.date("posted_count")
+  )
+
+  val p = Post.syntax("p")
+
+  import Comment.c
 
   DBs.setupAll()
 
@@ -38,24 +53,26 @@ object Post {
         .apply()
     }
 
-  def findAllPost: Seq[PostIndex] =
-    DB readOnly { implicit session =>
-      sql"""
-         SELECT *
-         FROM post
-      """
-        .map { rs =>
-          PostIndex(
-            id = rs.string("id"),
-            text = rs.string("text"),
-            user_id = rs.string("user_id"),
-            comment_count = rs.int("comment_count"),
-            posted_at = rs.timestamp("posted_at")
-          )
-        }
-        .list()
-        .apply()
-    }
+//  def findAllPost: Seq[Post] =
+//    DB readOnly { implicit session =>
+//      sql"""
+//        select
+//           *
+//        from
+//          post
+//      """
+////        .map { rs =>
+////          PostIndex(
+////            id = rs.string("id"),
+////            text = rs.string("text"),
+////            user_id = rs.string("user_id"),
+////            comment_count = rs.int("comment_count"),
+////            posted_at = rs.timestamp("posted_at")
+////          )
+////        }
+////        .list()
+////        .apply()
+//    }
 
   def create(id: String = UUID.randomUUID.toString, user_id: String, text: String): Unit =
     DB localTx { implicit session =>
