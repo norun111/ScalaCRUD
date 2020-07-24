@@ -16,9 +16,27 @@ case class Comment(
     posted_at: Date
 )
 
-object Comment {
+object Comment extends SQLSyntaxSupport[Comment] {
+
+  override val tableName = "comment"
+
+//  def apply(c: SyntaxProvider[Comment])(rs: WrappedResultSet): Comment = apply(c.resultName)(rs)
+//
+  def apply(c: ResultName[Comment])(rs: WrappedResultSet) = new Comment(
+    rs.string("id"),
+    rs.string("user_id"),
+    rs.string("text"),
+    rs.string("parent_post_id"),
+    rs.int("comment_count"),
+    rs.date("posted_count")
+  )
+//
+//  def opt(c: SyntaxProvider[Comment])(rs: WrappedResultSet) =
+//    rs.stringOpt(c.resultName.id).map(_ => Comment(c)(rs))
 
   DBs.setupAll()
+
+  var c = Comment.syntax("c")
 
   def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[CommentIndex] =
     DB readOnly { implicit session =>
