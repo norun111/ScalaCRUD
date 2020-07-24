@@ -6,7 +6,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import scalikejdbc._
 import models._
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import controllers.CommentJsonController.CommentIndex
 import play.api.libs.json.Json
@@ -15,22 +15,22 @@ object PostJsonController {
 
   // Index API Json
   case class PostIndex(
-                           id: String = UUID.randomUUID.toString,
-                           user_id: String,
-                           text: String,
-                           comment_count: Int,
-                           posted_at: Date,
-                           comments: Option[Seq[CommentIndex]] = None
-                         )
+      id: String = UUID.randomUUID.toString,
+      user_id: String,
+      text: String,
+      comment_count: Int,
+      posted_at: Date,
+      comments: Option[Seq[CommentIndex]] = None
+  )
 
   implicit val postIndexWrites: Writes[PostIndex] = (
     (__ \ "id").write[String] and
-    (__ \ "user_id").write[String] and
+      (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
       (__ \ "comment_count").write[Int] and
       (__ \ "posted_at").write[Date] and
       (__ \ "comments").write[Option[Seq[CommentIndex]]]
-    )(unlift(PostIndex.unapply))
+  )(unlift(PostIndex.unapply))
 
   //Post情報を受け取る為のケースクラス
   case class PostForm(user_id: String, text: String)
@@ -56,7 +56,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
   //index API
   def index = Action { implicit request =>
-    val posts = DB readOnly { implicit session =>
+    DB readOnly { implicit session =>
       sql"""
            select id, user_id, text, comment_count, posted_at from post
          """
@@ -71,9 +71,10 @@ class PostJsonController @Inject()(components: ControllerComponents)
         .list()
         .apply()
     }
-    
-    // Postの一覧をJSONで返す
-    Ok(Json.obj("posts" -> posts))
+    val posts = Post.findAllPost
+    Ok(Json.obj("posts" -> Json.toJson(posts)))
+  // Postの一覧をJSONで返す
+//    Ok(Json.obj("posts" -> posts))
   }
 
   //create API
