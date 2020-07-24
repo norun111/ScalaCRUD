@@ -4,6 +4,7 @@ import scalikejdbc._
 import java.util.Date
 import java.util.UUID
 
+import controllers.PostJsonController.PostIndex
 import scalikejdbc.config._
 
 case class Post(id: String = UUID.randomUUID.toString,
@@ -37,20 +38,21 @@ object Post {
         .apply()
     }
 
-  def findAllPost: Seq[Post] =
+  def findAllPost: Seq[PostIndex] =
     DB readOnly { implicit session =>
       sql"""
          SELECT *
          FROM post
-      """.map { rs =>
-        Post(
-          id = rs.string("id"),
-          text = rs.string("text"),
-          user_id = rs.string("user_id"),
-          comment_count = rs.int("comment_count"),
-          posted_at = rs.timestamp("posted_at")
-        )
-      }
+      """
+        .map { rs =>
+          PostIndex(
+            id = rs.string("id"),
+            text = rs.string("text"),
+            user_id = rs.string("user_id"),
+            comment_count = rs.int("comment_count"),
+            posted_at = rs.timestamp("posted_at")
+          )
+        }
         .list()
         .apply()
     }
