@@ -33,7 +33,7 @@ object Post extends SQLSyntaxSupport[Post] {
 
   DBs.setupAll()
 
-  def findPost(post_id: String = UUID.randomUUID.toString): Option[Post] =
+  def findPost(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession = autoSession): Option[Post] =
     DB readOnly { implicit session =>
       sql"""
          SELECT id, text, user_id, comment_count, posted_at
