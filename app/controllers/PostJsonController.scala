@@ -71,6 +71,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
         .list()
         .apply()
     }
+    
     // Postの一覧をJSONで返す
     Ok(Json.obj("posts" -> posts))
   }
