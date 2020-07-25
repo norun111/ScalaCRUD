@@ -37,9 +37,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
   //index API
   def index = Action { implicit request =>
     val posts = Post.findAllPost
-    println(posts)
-    Ok(Json.obj("posts" -> "ok"))
-//    Ok(Json.obj("posts" -> Json.toJson(posts)))
+    Ok(Json.obj("posts" -> Json.toJson(posts)))
   }
 
   //create API
