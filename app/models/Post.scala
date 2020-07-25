@@ -11,7 +11,6 @@ case class Post(id: String = UUID.randomUUID.toString,
                 comment_count: Int,
                 posted_at: LocalDate)
 
-//SQLInterpolation
 object Post extends SQLSyntaxSupport[Post] {
 
   import Comment.c
