@@ -15,10 +15,10 @@ case class nestComment(
 )
 
 object nestComment extends SQLSyntaxSupport[nestComment] {
+  
+  var nc = nestComment.syntax("nc")
 
   override val tableName = "comment"
-
-  var nc = nestComment.syntax("nc")
 
   override val columns =
     Seq("id", "user_id", "text", "parent_post_id", "comment_count", "posted_at")
