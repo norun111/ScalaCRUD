@@ -11,23 +11,23 @@ import scalikejdbc._
 object CommentJsonController {
 
   // Index API Json
-  case class CommentIndex(
-      id: String = UUID.randomUUID.toString,
-      user_id: String,
-      text: String,
-      parent_post_id: String,
-      comment_count: Int,
-      posted_at: Date
-  )
+//  case class CommentIndex(
+//      id: String = UUID.randomUUID.toString,
+//      user_id: String,
+//      text: String,
+//      parent_post_id: String,
+//      comment_count: Int,
+//      posted_at: Date
+//  )
 
-  implicit val commentWrites: Writes[CommentIndex] = (
+  implicit val commentWrites: Writes[Comment] = (
     (__ \ "id").write[String] and
       (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
       (__ \ "parent_post_id").write[String] and
       (__ \ "comment_count").write[Int] and
       (__ \ "posted_at").write[Date]
-  )(unlift(CommentIndex.unapply))
+  )(unlift(Comment.unapply))
 
   case class CommentForm(
       user_id: String,
