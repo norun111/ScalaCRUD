@@ -15,6 +15,7 @@ case class Post(id: String = UUID.randomUUID.toString,
 object Post extends SQLSyntaxSupport[Post] {
 
   import Comment.c
+  import nestComment.nc
 
   def apply(p: ResultName[Post])(rs: WrappedResultSet): Post =
     Post(
@@ -35,17 +36,21 @@ object Post extends SQLSyntaxSupport[Post] {
     }.map(Post(p.resultName)).single.apply()
   }
 
-  def findAllPost(implicit session: DBSession = autoSession): Seq[(Post, Seq[Comment])] = {
+  def findAllPost(
+      implicit session: DBSession = autoSession): Seq[(Post, Seq[Comment], Seq[nestComment])] = {
     withSQL[Post] {
       select
-        .from(Post as p)
-        .leftJoin(Comment as c)
+        .from(Post.as(p))
+        .leftJoin(Comment.as(c))
         .on(p.id, c.parent_post_id)
+        .leftJoin(nestComment.as(nc))
+        .on(c.id, nc.parent_post_id)
     }.one(Post(p.resultName))
-      .toMany(
-        rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs))
+      .toManies(
+        rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs)),
+        rs => rs.stringOpt(nc.resultName.parent_post_id).map(_ => nestComment(nc)(rs)),
       )
-      .map((post, comments) => (post, comments))
+      .map((post, comments, nestcomments) => (post, comments, nestcomments))
       .list()
       .apply()
   }
