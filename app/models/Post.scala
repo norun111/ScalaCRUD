@@ -58,7 +58,7 @@ object Post extends SQLSyntaxSupport[Post] {
   def create(id: String = UUID.randomUUID.toString, user_id: String, text: String)(
       implicit session: DBSession = autoSession): Unit = {
     withSQL {
-      insert.into(Post).values(id, text, user_id, 0, ZonedDateTime.now())
+      insert.into(Post).values(id, user_id, text, 0, ZonedDateTime.now())
     }.update.apply()
   }
 
