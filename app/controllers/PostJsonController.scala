@@ -1,13 +1,13 @@
 package controllers
 
+import java.util._
 import javax.inject.Inject
+import models._
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import scalikejdbc._
-import models._
-import java.util.{ Date, UUID }
 import play.api.libs.json.Json
+import scalikejdbc._
 
 object PostJsonController {
 
@@ -37,7 +37,9 @@ class PostJsonController @Inject()(components: ControllerComponents)
   //index API
   def index = Action { implicit request =>
     val posts = Post.findAllPost
-    Ok(Json.obj("posts" -> Json.toJson(posts)))
+    println(posts)
+    Ok(Json.obj("posts" -> "ok"))
+//    Ok(Json.obj("posts" -> Json.toJson(posts)))
   }
 
   //create API
