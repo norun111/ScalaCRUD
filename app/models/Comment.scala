@@ -5,6 +5,36 @@ import java.util._
 
 import scalikejdbc._
 
+case class nestComment(
+    id: String = UUID.randomUUID.toString,
+    user_id: String,
+    text: String,
+    parent_post_id: String,
+    comment_count: Int,
+    posted_at: Date
+)
+
+object nestComment extends SQLSyntaxSupport[nestComment] {
+
+  override val tableName = "comment"
+
+  var nc = nestComment.syntax("nc")
+
+  override val columns =
+    Seq("id", "user_id", "text", "parent_post_id", "comment_count", "posted_at")
+
+  def apply(nc: ResultName[nestComment])(rs: WrappedResultSet): nestComment = new nestComment(
+    id = rs.string(nc.id),
+    user_id = rs.string(nc.user_id),
+    text = rs.string(nc.text),
+    parent_post_id = rs.string(nc.parent_post_id),
+    comment_count = rs.int(nc.comment_count),
+    posted_at = rs.date(nc.posted_at)
+  )
+  def apply(nc: SyntaxProvider[nestComment])(rs: WrappedResultSet): nestComment =
+    apply(nc.resultName)(rs)
+}
+
 case class Comment(
     id: String = UUID.randomUUID.toString,
     user_id: String,
