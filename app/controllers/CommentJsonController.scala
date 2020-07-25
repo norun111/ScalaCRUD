@@ -10,16 +10,6 @@ import scalikejdbc._
 
 object CommentJsonController {
 
-  // Index API Json
-//  case class CommentIndex(
-//      id: String = UUID.randomUUID.toString,
-//      user_id: String,
-//      text: String,
-//      parent_post_id: String,
-//      comment_count: Int,
-//      posted_at: Date
-//  )
-
   implicit val commentWrites: Writes[Comment] = (
     (__ \ "id").write[String] and
       (__ \ "user_id").write[String] and
@@ -78,7 +68,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   } else if (form.text.length >= 101) {
                     //文字列長が101の状態
                     BadRequest((Json.toJson(
-                      Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+                      Response(Meta(400, "Cannot be registered with more than 100 characters")))))
                   } else {
                     Comment.create(uuid.toString, form.user_id, form.text, post_id)
                     Post.addCommentCount(post_id)
@@ -105,7 +95,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                           Meta(400, "Cannot be registered with more than 101 characters")))))
                       } else {
                         Comment.create(uuid.toString, form.user_id, form.text, post_id)
-                        Comment.addCommentCountOnComment(post_id)
+                        Comment.addCommentCount(post_id)
                         Ok(Json.obj("result" -> "OK"))
                       }
 
@@ -114,9 +104,9 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   }
 
                 case None =>
-                  BadRequest((Json.toJson(Response(Meta(
-                    400,
-                    s"post_id : ${form.user_id} does not exist in both comment and post tables")))))
+                  BadRequest((Json.toJson(Response(
+                    Meta(400,
+                         s"post_id : ${post_id} does not exist in both comment and post tables")))))
               }
           }
         }
