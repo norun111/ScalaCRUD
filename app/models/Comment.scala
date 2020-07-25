@@ -4,8 +4,6 @@ import java.util.{ Date, UUID }
 
 import controllers.CommentJsonController.CommentIndex
 import scalikejdbc._
-import scalikejdbc.config._
-import play.api.libs.json._
 
 case class Comment(
     id: String = UUID.randomUUID.toString,
@@ -16,25 +14,34 @@ case class Comment(
     posted_at: Date
 )
 
+//object CommentIndex extends SQLSyntaxSupport[CommentIndex] {
+//
+//  def apply(cI: ResultName[CommentIndex])(rs: WrappedResultSet): CommentIndex = new CommentIndex(
+//    id = rs.string(cI.id),
+//    user_id = rs.string(cI.user_id),
+//    text = rs.string(cI.text),
+//    parent_post_id = rs.string(cI.parent_post_id),
+//    comment_count = rs.int(cI.comment_count),
+//    posted_at = rs.date(cI.posted_at)
+//  )
+//
+//  def apply(c: SyntaxProvider[CommentIndex])(rs: WrappedResultSet): CommentIndex =
+//    apply(c.resultName)(rs)
+//  var cI = CommentIndex.syntax("cI")
+//
+//}
+
 object Comment extends SQLSyntaxSupport[Comment] {
 
-  override val tableName = "comment"
-
-//  def apply(c: SyntaxProvider[Comment])(rs: WrappedResultSet): Comment = apply(c.resultName)(rs)
-//
-  def apply(c: ResultName[Comment])(rs: WrappedResultSet) = new Comment(
-    rs.string("id"),
-    rs.string("user_id"),
-    rs.string("text"),
-    rs.string("parent_post_id"),
-    rs.int("comment_count"),
-    rs.date("posted_count")
+  def apply(c: ResultName[Comment])(rs: WrappedResultSet): Comment = new Comment(
+    id = rs.string(c.id),
+    user_id = rs.string(c.user_id),
+    text = rs.string(c.text),
+    parent_post_id = rs.string(c.parent_post_id),
+    comment_count = rs.int(c.comment_count),
+    posted_at = rs.date(c.posted_at)
   )
-//
-//  def opt(c: SyntaxProvider[Comment])(rs: WrappedResultSet) =
-//    rs.stringOpt(c.resultName.id).map(_ => Comment(c)(rs))
-
-  DBs.setupAll()
+  def apply(c: SyntaxProvider[Comment])(rs: WrappedResultSet): Comment = apply(c.resultName)(rs)
 
   var c = Comment.syntax("c")
 
@@ -60,26 +67,11 @@ object Comment extends SQLSyntaxSupport[Comment] {
     }
 
   //コメント先のコメントを検索
-  def findComment(comment_id: String = UUID.randomUUID.toString): Option[Comment] =
-    DB readOnly { implicit session =>
-      sql"""
-         SELECT *
-         FROM comment
-         WHERE id = ${comment_id}
-      """
-        .map { rs =>
-          Comment(
-            id = rs.string("id"),
-            user_id = rs.string("user_id"),
-            text = rs.string("text"),
-            parent_post_id = rs.string("parent_post_id"),
-            comment_count = rs.int("comment_count"),
-            posted_at = rs.timestamp("posted_at")
-          )
-        }
-        .single()
-        .apply()
-    }
+  def findComment(comment_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
+                                                                   autoSession): Option[Comment] =
+    withSQL {
+      select.from(Comment as c).where.eq(c.id, comment_id)
+    }.map(Comment(c.resultName)).single.apply()
 
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
@@ -108,18 +100,5 @@ object Comment extends SQLSyntaxSupport[Comment] {
     WHERE id = ${comment_id}
     """.update().apply()
     }
-  /*
-  // not used
-  //値を0で挿入し、その後にpost.comment_count + 1でupdate
-  def setCommentCount(post_id: String = UUID.randomUUID.toString) =
-    DB autoCommit { implicit session =>
-      sql"""UPDATE comment SET comment.comment_count = post.comment_count + 1,
-            FROM comment
-            INNER JOIN post
-            ON ${post_id} = post.id
-    """.update().apply()
-    }
-
- */
 
 }
