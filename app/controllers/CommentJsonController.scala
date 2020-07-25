@@ -60,6 +60,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
   import CommentJsonController._
+  import CommentIndex._
 
   //index API
   def index(post_id: String) = Action { implicit request =>
