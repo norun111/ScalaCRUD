@@ -32,7 +32,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
   import PostJsonController._
-  import models.Formatters._
+  import FormatterController._
 
   //index API
   def index = Action { implicit request =>
