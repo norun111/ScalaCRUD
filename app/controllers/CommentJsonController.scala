@@ -12,7 +12,8 @@ import scalikejdbc._
 
 object CommentJsonController {
 
-  implicit val commentWritesFormat = new Writes[Comment] {
+  //時間のフォーマットが上手くいかなかった為DSLを使わず記述
+  implicit val commentWrites = new Writes[Comment] {
     def writes(comment: Comment): JsValue = {
       Json.obj(
         "id" -> comment.id,
@@ -24,15 +25,6 @@ object CommentJsonController {
       )
     }
   }
-
-//  implicit val commentWrites: Writes[Comment] = (
-//    (__ \ "id").write[String] and
-//      (__ \ "user_id").write[String] and
-//      (__ \ "text").write[String] and
-//      (__ \ "parent_post_id").write[String] and
-//      (__ \ "comment_count").write[Int] and
-//      (__ \ "posted_at").write[Date]
-//  )(unlift(Comment.unapply))
 
   case class CommentForm(
       user_id: String,
