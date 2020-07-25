@@ -1,7 +1,8 @@
 package models
 
-import java.time.ZonedDateTime
-import java.util.{ Date, UUID }
+import java.time.{ LocalDate, LocalDateTime, ZonedDateTime }
+import java.util._
+
 import scalikejdbc._
 
 case class Comment(
@@ -10,7 +11,7 @@ case class Comment(
     text: String,
     parent_post_id: String,
     comment_count: Int,
-    posted_at: Date
+    posted_at: LocalDate
 )
 
 object Comment extends SQLSyntaxSupport[Comment] {
@@ -21,32 +22,19 @@ object Comment extends SQLSyntaxSupport[Comment] {
     text = rs.string(c.text),
     parent_post_id = rs.string(c.parent_post_id),
     comment_count = rs.int(c.comment_count),
-    posted_at = rs.date(c.posted_at)
+    posted_at = rs.localDate(c.posted_at)
   )
   def apply(c: SyntaxProvider[Comment])(rs: WrappedResultSet): Comment = apply(c.resultName)(rs)
 
   var c = Comment.syntax("c")
 
-  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[Comment] =
-    DB readOnly { implicit session =>
-      sql"""
-         SELECT *
-         FROM comment
-         WHERE parent_post_id = ${post_id}
-      """
-        .map { rs =>
-          Comment(
-            id = rs.string("id"),
-            user_id = rs.string("user_id"),
-            text = rs.string("text"),
-            parent_post_id = rs.string("parent_post_id"),
-            comment_count = rs.int("comment_count"),
-            posted_at = rs.timestamp("posted_at")
-          )
-        }
-        .list()
-        .apply()
-    }
+  def findAllComment(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
+                                                                   autoSession): Seq[Comment] = {
+    withSQL(select.from(Comment as c).where.eq(c.parent_post_id, post_id))
+      .map(Comment(c.resultName))
+      .list
+      .apply()
+  }
 
   //コメント先のコメントを検索
   def findComment(comment_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
