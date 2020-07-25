@@ -1,23 +1,38 @@
 package controllers
 
+import java.time.format.DateTimeFormatter
 import java.util._
-import play.api.libs.functional.syntax._
+
 import javax.inject.Inject
 import models._
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import play.api.mvc.{ AbstractController, ControllerComponents }
+import play.api.mvc._
 import scalikejdbc._
 
 object CommentJsonController {
 
-  implicit val commentWrites: Writes[Comment] = (
-    (__ \ "id").write[String] and
-      (__ \ "user_id").write[String] and
-      (__ \ "text").write[String] and
-      (__ \ "parent_post_id").write[String] and
-      (__ \ "comment_count").write[Int] and
-      (__ \ "posted_at").write[Date]
-  )(unlift(Comment.unapply))
+  implicit val commentWritesFormat = new Writes[Comment] {
+    def writes(comment: Comment): JsValue = {
+      Json.obj(
+        "id" -> comment.id,
+        "user_id" -> comment.user_id,
+        "text" -> comment.text,
+        "parent_post_id" -> comment.parent_post_id,
+        "comment_count" -> comment.comment_count,
+        "posted_at" -> comment.posted_at
+      )
+    }
+  }
+
+//  implicit val commentWrites: Writes[Comment] = (
+//    (__ \ "id").write[String] and
+//      (__ \ "user_id").write[String] and
+//      (__ \ "text").write[String] and
+//      (__ \ "parent_post_id").write[String] and
+//      (__ \ "comment_count").write[Int] and
+//      (__ \ "posted_at").write[Date]
+//  )(unlift(Comment.unapply))
 
   case class CommentForm(
       user_id: String,
