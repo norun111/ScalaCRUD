@@ -35,7 +35,7 @@ object Post extends SQLSyntaxSupport[Post] {
     }.map(Post(p.resultName)).single.apply()
   }
 
-  def findAllPost(implicit session: DBSession = autoSession) = {
+  def findAllPost(implicit session: DBSession = autoSession): Seq[(Post, Seq[Comment])] = {
     withSQL[Post] {
       select
         .from(Post.as(p))
