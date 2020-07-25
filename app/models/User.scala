@@ -15,10 +15,10 @@ object User extends SQLSyntaxSupport[User] {
     )
   def apply(u: SyntaxProvider[User], rs: WrappedResultSet): User = apply(u.resultName)(rs)
 
-  def findUser(user_id: String)(
-    implicit session: DBSession = autoSession): Option[User] = DB readOnly { implicit session =>
-    withSQL {
-      select.from(User as u).where.eq(u.id, user_id)
-    }.map(User(u.resultName)).single.apply()
-  }
+  def findUser(user_id: String)(implicit session: DBSession = autoSession): Option[User] =
+    DB readOnly { implicit session =>
+      withSQL {
+        select.from(User as u).where.eq(u.id, user_id)
+      }.map(User(u.resultName)).single.apply()
+    }
 }
