@@ -1,5 +1,6 @@
 package models
 
+import java.time.ZonedDateTime
 import java.util.{ Date, UUID }
 
 import controllers.CommentJsonController.CommentIndex
@@ -76,14 +77,12 @@ object Comment extends SQLSyntaxSupport[Comment] {
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
              text: String,
-             parent_post_id: String = UUID.randomUUID.toString): Unit =
-    DB localTx { implicit session =>
-      sql"""INSERT INTO comment
-                 (id, user_id, text, parent_post_id, comment_count)
-                 VALUES
-                 (${id} ,${user_id},${text}, ${parent_post_id} , 0)
-                 """.update().apply()
-    }
+             parent_post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
+                                                                  autoSession): Unit = {
+    withSQL {
+      insert.into(Comment).values(id, user_id, text, parent_post_id, 0, ZonedDateTime.now())
+    }.update.apply()
+  }
 
   //親Postのコメント数を+1
   def addCommentCount(post_id: String = UUID.randomUUID.toString) =
