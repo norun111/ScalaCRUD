@@ -34,25 +34,11 @@ object Post extends SQLSyntaxSupport[Post] {
   val p = Post.syntax("p")
 
   def findPost(post_id: String = UUID.randomUUID.toString)(
-      implicit session: DBSession = autoSession): Option[Post] =
-    DB readOnly { implicit session =>
-      sql"""
-         SELECT id, text, user_id, comment_count, posted_at
-         FROM post
-         WHERE id = ${post_id}
-      """
-        .map { rs =>
-          Post(
-            id = rs.string("id"),
-            text = rs.string("text"),
-            user_id = rs.string("user_id"),
-            comment_count = rs.int("comment_count"),
-            posted_at = rs.timestamp("posted_at")
-          )
-        }
-        .single()
-        .apply()
-    }
+      implicit session: DBSession = autoSession): Option[Post] = {
+    withSQL {
+      select.from(Post as p).where.eq(p.id, post_id)
+    }.map(Post(p.resultName)).single.apply()
+  }
 
   def findAllPost(implicit session: DBSession = autoSession) = {
     withSQL[Post] {
@@ -64,14 +50,13 @@ object Post extends SQLSyntaxSupport[Post] {
       .toMany(
         rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs))
       )
-      .map((post, comments) => (post, comments)) // 一つのcorporateに対して、userがlistで付いてくる
+      .map((post, comments) => (post, comments)) // 一つのpostに対して、commentがlistで付いてくる
       .list()
       .apply()
   }
 
   def create(id: String = UUID.randomUUID.toString, user_id: String, text: String)(
       implicit session: DBSession = autoSession): Unit = {
-
     withSQL {
       insert.into(Post).values(id, text, user_id, 0, ZonedDateTime.now())
     }.update.apply()
