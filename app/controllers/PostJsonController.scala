@@ -71,8 +71,8 @@ class PostJsonController @Inject()(components: ControllerComponents)
         .list()
         .apply()
     }
-//    val pos = Post.findAllPost
-//    println(pos)
+    val pos = Post.findAllPost
+    println(pos)
 
     Ok(Json.obj("posts" -> Json.toJson(posts)))
   // Postの一覧をJSONで返す
