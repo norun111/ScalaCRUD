@@ -5,9 +5,6 @@ import java.util.Date
 import java.util.UUID
 import java.time.ZonedDateTime
 
-import controllers.PostJsonController.{ PostForm, PostIndex }
-import scalikejdbc.config._
-
 case class Post(id: String = UUID.randomUUID.toString,
                 text: String,
                 user_id: String,
@@ -18,8 +15,6 @@ case class Post(id: String = UUID.randomUUID.toString,
 object Post extends SQLSyntaxSupport[Post] {
 
   import Comment.c
-
-  override val columns = Seq("id", "text", "user_id", "comment_count", "posted_at")
 
   def apply(p: ResultName[Post])(rs: WrappedResultSet): Post =
     Post(
@@ -61,4 +56,13 @@ object Post extends SQLSyntaxSupport[Post] {
       insert.into(Post).values(id, text, user_id, 0, ZonedDateTime.now())
     }.update.apply()
   }
+
+  //親Postのコメント数を+1
+  def addCommentCount(post_id: String = UUID.randomUUID.toString) =
+    DB autoCommit { implicit session =>
+      sql"""UPDATE post SET comment_count = comment_count + 1
+  WHERE id = ${post_id}
+  """.update().apply()
+    }
+
 }
