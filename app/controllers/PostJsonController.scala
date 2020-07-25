@@ -7,30 +7,9 @@ import play.api.libs.functional.syntax._
 import scalikejdbc._
 import models._
 import java.util.{ Date, UUID }
-
-import controllers.CommentJsonController.CommentIndex
 import play.api.libs.json.Json
 
 object PostJsonController {
-
-  // Index API Json
-  case class PostIndex(
-      id: String = UUID.randomUUID.toString,
-      user_id: String,
-      text: String,
-      comment_count: Int,
-      posted_at: Date,
-      comments: Option[Seq[CommentIndex]] = None
-  )
-
-  implicit val postIndexWrites: Writes[PostIndex] = (
-    (__ \ "id").write[String] and
-      (__ \ "user_id").write[String] and
-      (__ \ "text").write[String] and
-      (__ \ "comment_count").write[Int] and
-      (__ \ "posted_at").write[Date] and
-      (__ \ "comments").write[Option[Seq[CommentIndex]]]
-  )(unlift(PostIndex.unapply))
 
   //Post情報を受け取る為のケースクラス
   case class PostForm(user_id: String, text: String)
@@ -53,13 +32,12 @@ class PostJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
   import PostJsonController._
+  import models.Formatters._
 
   //index API
   def index = Action { implicit request =>
     val posts = Post.findAllPost
     Ok(Json.obj("posts" -> Json.toJson(posts)))
-  // Postの一覧をJSONで返す
-//    Ok(Json.obj("posts" -> posts))
   }
 
   //create API
@@ -67,10 +45,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
     request.body
       .validate[PostForm]
       .map { form =>
-        // OKの場合はユーザを登録
         DB.localTx { implicit session =>
-          //Some(User(11111111-1111-1111-1111-111111111111,alice))
-
           User.findUser(form.user_id) match {
             case Some(user) =>
               if (form.text.length == 0) {
@@ -80,7 +55,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
               } else if (form.text.length >= 101) {
                 //文字列長が101の状態
                 BadRequest((Json.toJson(
-                  Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+                  Response(Meta(400, "Cannot be registered with more than 100 characters")))))
               } else {
                 val uuid = UUID.randomUUID
                 Post.create(uuid.toString, form.user_id, form.text)

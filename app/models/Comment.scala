@@ -2,8 +2,6 @@ package models
 
 import java.time.ZonedDateTime
 import java.util.{ Date, UUID }
-
-import controllers.CommentJsonController.CommentIndex
 import scalikejdbc._
 
 case class Comment(
@@ -14,23 +12,6 @@ case class Comment(
     comment_count: Int,
     posted_at: Date
 )
-
-//object CommentIndex extends SQLSyntaxSupport[CommentIndex] {
-//
-//  def apply(cI: ResultName[CommentIndex])(rs: WrappedResultSet): CommentIndex = new CommentIndex(
-//    id = rs.string(cI.id),
-//    user_id = rs.string(cI.user_id),
-//    text = rs.string(cI.text),
-//    parent_post_id = rs.string(cI.parent_post_id),
-//    comment_count = rs.int(cI.comment_count),
-//    posted_at = rs.date(cI.posted_at)
-//  )
-//
-//  def apply(c: SyntaxProvider[CommentIndex])(rs: WrappedResultSet): CommentIndex =
-//    apply(c.resultName)(rs)
-//  var cI = CommentIndex.syntax("cI")
-//
-//}
 
 object Comment extends SQLSyntaxSupport[Comment] {
 
@@ -46,7 +27,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   var c = Comment.syntax("c")
 
-  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[CommentIndex] =
+  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[Comment] =
     DB readOnly { implicit session =>
       sql"""
          SELECT *
@@ -54,7 +35,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
          WHERE parent_post_id = ${post_id}
       """
         .map { rs =>
-          CommentIndex(
+          Comment(
             id = rs.string("id"),
             user_id = rs.string("user_id"),
             text = rs.string("text"),
@@ -86,7 +67,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
   }
 
   //親Commentのコメント数を+1
-  def addCommentCountOnComment(comment_id: String = UUID.randomUUID.toString) =
+  def addCommentCount(comment_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
       sql"""UPDATE comment SET comment_count = comment_count + 1
     WHERE id = ${comment_id}
