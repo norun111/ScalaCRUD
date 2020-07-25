@@ -7,8 +7,6 @@ import play.api.libs.functional.syntax._
 import scalikejdbc._
 import models._
 import java.util.{ Date, UUID }
-
-import controllers.CommentJsonController.CommentIndex
 import play.api.libs.json.Json
 
 object PostJsonController {
