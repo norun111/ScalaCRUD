@@ -1,5 +1,6 @@
 package models
 
+import java.time.ZonedDateTime
 import java.util.{ Date, UUID }
 
 import controllers.CommentJsonController.CommentIndex
@@ -68,30 +69,21 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   //コメント先のコメントを検索
   def findComment(comment_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
-                                                                   autoSession): Option[Comment] =
+                                                                   autoSession): Option[Comment] = {
     withSQL {
       select.from(Comment as c).where.eq(c.id, comment_id)
     }.map(Comment(c.resultName)).single.apply()
+  }
 
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
              text: String,
-             parent_post_id: String = UUID.randomUUID.toString): Unit =
-    DB localTx { implicit session =>
-      sql"""INSERT INTO comment
-                 (id, user_id, text, parent_post_id, comment_count)
-                 VALUES
-                 (${id} ,${user_id},${text}, ${parent_post_id} , 0)
-                 """.update().apply()
-    }
-
-  //親Postのコメント数を+1
-  def addCommentCount(post_id: String = UUID.randomUUID.toString) =
-    DB autoCommit { implicit session =>
-      sql"""UPDATE post SET comment_count = comment_count + 1
-    WHERE id = ${post_id}
-    """.update().apply()
-    }
+             parent_post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
+                                                                  autoSession): Unit = {
+    withSQL {
+      insert.into(Comment).values(id, user_id, text, parent_post_id, 0, ZonedDateTime.now())
+    }.update.apply()
+  }
 
   //親Commentのコメント数を+1
   def addCommentCountOnComment(comment_id: String = UUID.randomUUID.toString) =
