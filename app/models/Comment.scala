@@ -2,8 +2,6 @@ package models
 
 import java.time.ZonedDateTime
 import java.util.{ Date, UUID }
-
-import controllers.CommentJsonController.CommentIndex
 import scalikejdbc._
 
 case class Comment(
@@ -46,7 +44,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   var c = Comment.syntax("c")
 
-  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[CommentIndex] =
+  def findAllComment(post_id: String = UUID.randomUUID.toString): Seq[Comment] =
     DB readOnly { implicit session =>
       sql"""
          SELECT *
@@ -54,7 +52,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
          WHERE parent_post_id = ${post_id}
       """
         .map { rs =>
-          CommentIndex(
+          Comment(
             id = rs.string("id"),
             user_id = rs.string("user_id"),
             text = rs.string("text"),
