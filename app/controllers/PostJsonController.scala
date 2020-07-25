@@ -45,9 +45,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
     request.body
       .validate[PostForm]
       .map { form =>
-
         DB.localTx { implicit session =>
-
           User.findUser(form.user_id) match {
             case Some(user) =>
               if (form.text.length == 0) {
@@ -57,7 +55,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
               } else if (form.text.length >= 101) {
                 //文字列長が101の状態
                 BadRequest((Json.toJson(
-                  Response(Meta(400, "Cannot be registered with more than 101 characters")))))
+                  Response(Meta(400, "Cannot be registered with more than 100 characters")))))
               } else {
                 val uuid = UUID.randomUUID
                 Post.create(uuid.toString, form.user_id, form.text)
