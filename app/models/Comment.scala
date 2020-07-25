@@ -15,7 +15,7 @@ case class nestComment(
 )
 
 object nestComment extends SQLSyntaxSupport[nestComment] {
-  
+
   var nc = nestComment.syntax("nc")
 
   override val tableName = "comment"
