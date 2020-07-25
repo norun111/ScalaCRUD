@@ -49,7 +49,7 @@ object Post extends SQLSyntaxSupport[Post] {
         rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs)),
         rs => rs.stringOpt(nc.resultName.parent_post_id).map(_ => nestComment(nc)(rs)),
       )
-      .map((post, comments, nestcomments) => (post, comments, nestcomments))
+      .map((post, comments, nestComments) => (post, comments, nestComments))
       .list()
       .apply()
   }
