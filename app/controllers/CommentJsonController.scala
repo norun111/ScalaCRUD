@@ -29,14 +29,6 @@ object CommentJsonController {
       (__ \ "posted_at").write[Date]
   )(unlift(CommentIndex.unapply))
 
-  // comment formatter no used
-//  case class CommentFormatter(format: String, comments: Seq[CommentIndex])
-//
-//  implicit val commentFormatWrites: Writes[CommentFormatter] = (
-//    (__ \ "format").write[String] and
-//      (__ \ "comments").write[Seq[CommentIndex]]
-//  )(unlift(CommentFormatter.unapply))
-
   case class CommentForm(
       user_id: String,
       text: String
@@ -60,7 +52,6 @@ class CommentJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
   import CommentJsonController._
-  import CommentIndex._
 
   //index API
   def index(post_id: String) = Action { implicit request =>
