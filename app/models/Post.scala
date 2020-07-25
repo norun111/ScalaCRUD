@@ -1,15 +1,15 @@
 package models
 
-import scalikejdbc._
-import java.util.Date
 import java.util.UUID
 import java.time.ZonedDateTime
+import scalikejdbc._
+import java.time.LocalDate
 
 case class Post(id: String = UUID.randomUUID.toString,
                 text: String,
                 user_id: String,
                 comment_count: Int,
-                posted_at: Date)
+                posted_at: LocalDate)
 
 //SQLInterpolation
 object Post extends SQLSyntaxSupport[Post] {
@@ -22,7 +22,7 @@ object Post extends SQLSyntaxSupport[Post] {
       text = rs.string(p.text),
       user_id = rs.string(p.user_id),
       comment_count = rs.int(p.comment_count),
-      posted_at = rs.date(p.posted_at)
+      posted_at = rs.localDate(p.posted_at)
     )
   def apply(p: SyntaxProvider[Post], rs: WrappedResultSet): Post = apply(p.resultName)(rs)
 
@@ -38,14 +38,14 @@ object Post extends SQLSyntaxSupport[Post] {
   def findAllPost(implicit session: DBSession = autoSession): Seq[(Post, Seq[Comment])] = {
     withSQL[Post] {
       select
-        .from(Post.as(p))
-        .leftJoin(Comment.as(c))
+        .from(Post as p)
+        .leftJoin(Comment as c)
         .on(p.id, c.parent_post_id)
     }.one(Post(p.resultName))
       .toMany(
         rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs))
       )
-      .map((post, comments) => (post, comments)) // 一つのpostに対して、commentがlistで付いてくる
+      .map((post, comments) => (post, comments))
       .list()
       .apply()
   }
