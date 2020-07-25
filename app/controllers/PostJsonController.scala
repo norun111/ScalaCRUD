@@ -39,7 +39,6 @@ class PostJsonController @Inject()(components: ControllerComponents)
   //index API
   def index = Action { implicit request =>
     val posts = Post.findAllPost
-    println(posts)
     Ok(Json.obj("posts" -> Json.toJson(posts)))
   }
 
@@ -48,9 +47,8 @@ class PostJsonController @Inject()(components: ControllerComponents)
     request.body
       .validate[PostForm]
       .map { form =>
-        // OKの場合はユーザを登録
+
         DB.localTx { implicit session =>
-          //Some(User(11111111-1111-1111-1111-111111111111,alice))
 
           User.findUser(form.user_id) match {
             case Some(user) =>
