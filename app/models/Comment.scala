@@ -1,6 +1,6 @@
 package models
 
-import java.time.{ LocalDate, LocalDateTime, ZonedDateTime }
+import java.time.{ LocalDate, ZonedDateTime }
 import java.util._
 
 import scalikejdbc._
