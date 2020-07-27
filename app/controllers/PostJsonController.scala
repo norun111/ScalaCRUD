@@ -50,8 +50,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
             case Some(user) =>
               if (form.text.length == 0) {
                 //文字列長が0の状態
-                BadRequest(
-                  (Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
+                BadRequest((Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
               } else if (form.text.length >= 101) {
                 //文字列長が101の状態
                 BadRequest((Json.toJson(
