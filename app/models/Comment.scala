@@ -1,7 +1,8 @@
 package models
 
-import java.time.{ LocalDate, ZonedDateTime }
+import java.time._
 import java.util._
+import org.joda.time.{ DateTime, DateTimeZone }
 
 import scalikejdbc._
 
@@ -11,7 +12,7 @@ case class nestComment(
     text: String,
     parent_post_id: String,
     comment_count: Int,
-    posted_at: Date
+    posted_at: LocalDateTime
 )
 object nestComment extends SQLSyntaxSupport[nestComment] {
 
@@ -28,7 +29,7 @@ object nestComment extends SQLSyntaxSupport[nestComment] {
     text = rs.string(nc.text),
     parent_post_id = rs.string(nc.parent_post_id),
     comment_count = rs.int(nc.comment_count),
-    posted_at = rs.date(nc.posted_at)
+    posted_at = rs.localDateTime(nc.posted_at)
   )
   def apply(nc: SyntaxProvider[nestComment])(rs: WrappedResultSet): nestComment =
     apply(nc.resultName)(rs)
@@ -40,7 +41,7 @@ case class Comment(
     text: String,
     parent_post_id: String,
     comment_count: Int,
-    posted_at: LocalDate
+    posted_at: LocalDateTime
 )
 
 object Comment extends SQLSyntaxSupport[Comment] {
@@ -51,7 +52,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
     text = rs.string(c.text),
     parent_post_id = rs.string(c.parent_post_id),
     comment_count = rs.int(c.comment_count),
-    posted_at = rs.localDate(c.posted_at)
+    posted_at = rs.localDateTime(c.posted_at)
   )
   def apply(c: SyntaxProvider[Comment])(rs: WrappedResultSet): Comment = apply(c.resultName)(rs)
 
