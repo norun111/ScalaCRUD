@@ -5,8 +5,8 @@
 
 
 # PostJSON API
-GET         /json/index                                  controllers.PostJsonController.index
-POST        /json/create                                 controllers.PostJsonController.create
+GET         /posts                                controllers.PostJsonController.index
+POST        /posts/create                                 controllers.PostJsonController.create
 
 # CommentJSON API
 GET         /posts/:post_id/comments                     controllers.CommentJsonController.index(post_id: String)
