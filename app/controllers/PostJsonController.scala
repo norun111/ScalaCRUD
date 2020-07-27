@@ -35,13 +35,13 @@ class PostJsonController @Inject()(components: ControllerComponents)
   import PostJsonController._
   import FormatterController._
 
-  //index API
+  //全投稿一覧を取得
   def index = Action { implicit request =>
     val posts = Post.findAllPost
     Ok(Json.obj("posts" -> Json.toJson(posts)))
   }
 
-  //create API
+  //新規のPostを作成
   def create = Action(parse.json) { implicit request =>
     request.body
       .validate[PostForm]
