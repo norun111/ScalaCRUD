@@ -47,13 +47,14 @@ class PostJsonController @Inject()(components: ControllerComponents)
       .validate[PostForm]
       .map { form =>
         DB.localTx { implicit session =>
+          //Formに送信されたuser_idがuserテーブルに存在するかどうか確認
           User.findUser(form.user_id) match {
             case Some(user) =>
               if (form.text.length == 0) {
                 //文字列長が0の状態
                 BadRequest((Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
-              } else if (form.text.length >= 100) {
-                //文字列長が101の状態
+              } else if (form.text.length > 100) {
+                //文字列長が100より長い状態
                 BadRequest((Json.toJson(
                   Response(Meta(400, "Can't be registered with more than 100 characters")))))
               } else {
@@ -63,13 +64,13 @@ class PostJsonController @Inject()(components: ControllerComponents)
               }
 
             case None =>
-              //存在しないidの状態
+              //Formに送信されたuser_idがuserテーブルに存在しなかった場合
               BadRequest((Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
           }
         }
       }
       .recoverTotal { e =>
-        // NGの場合はバリデーションエラーを返す
+        // Formが妥当で無い場合バリデーションエラーを返す
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
