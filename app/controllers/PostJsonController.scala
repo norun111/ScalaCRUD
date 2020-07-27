@@ -71,7 +71,7 @@ class PostJsonController @Inject()(components: ControllerComponents)
       }
       .recoverTotal { e =>
         // Formが妥当で無い場合バリデーションエラーを返す
-        BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
+        BadRequest(Json.obj("result" -> "Failure", "Error" -> JsError.toJson(e)))
       }
   }
 }
