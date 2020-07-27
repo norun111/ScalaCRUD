@@ -58,7 +58,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
 
-          // post_idに紐づくPostが存在するかどうかを確認
+          //post_idに紐づくPostが存在するかどうかを確認
           Post.findPost(post_id) match {
             case Some(post) =>
               //Formに送信されたuser_idがuserテーブルに存在するかどうか確認
@@ -69,7 +69,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                     //文字列長が0の状態
                     BadRequest(
                       (Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
-                  } else if (form.text.length >= 101) {
+                  } else if (form.text.length > 100) {
                     //文字列長が100より長い状態
                     BadRequest((Json.toJson(
                       Response(Meta(400, "Can't be registered with more than 100 characters")))))
@@ -97,7 +97,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                         //文字列長が0の状態
                         BadRequest(
                           (Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
-                      } else if (form.text.length >= 101) {
+                      } else if (form.text.length > 100) {
                         //文字列長が100より長い状態
                         BadRequest((Json.toJson(Response(
                           Meta(400, "Can't be registered with more than 100 characters")))))
@@ -120,6 +120,7 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         }
       }
       .recoverTotal { e =>
+        // Formが妥当で無い場合バリデーションエラーを返す
         BadRequest(Json.obj("result" -> "failure", "error" -> JsError.toJson(e)))
       }
   }
