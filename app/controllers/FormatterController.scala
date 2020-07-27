@@ -1,6 +1,6 @@
 package controllers
 
-import models.{Comment, Post, nestComment}
+import models.{ nestComment, Comment, Post }
 import play.api.libs.json._
 
 object FormatterController {
