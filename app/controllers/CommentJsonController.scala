@@ -2,7 +2,7 @@ package controllers
 
 import java.time.format.DateTimeFormatter
 import java.util._
-
+import java.time._
 import javax.inject.Inject
 import models._
 import play.api.libs.functional.syntax._
@@ -12,19 +12,14 @@ import scalikejdbc._
 
 object CommentJsonController {
 
-  //時間のフォーマットが上手くいかなかった為DSLを使わず記述
-  implicit val commentWrites = new Writes[Comment] {
-    def writes(comment: Comment): JsValue = {
-      Json.obj(
-        "id" -> comment.id,
-        "user_id" -> comment.user_id,
-        "text" -> comment.text,
-        "parent_post_id" -> comment.parent_post_id,
-        "comment_count" -> comment.comment_count,
-        "posted_at" -> comment.posted_at
-      )
-    }
-  }
+  implicit val commentWrites = (
+    (__ \ "id").write[String] and
+      (__ \ "user_id").write[String] and
+      (__ \ "text").write[String] and
+      (__ \ "parent_post_id").write[String] and
+      (__ \ "comment_count").write[Int] and
+      (__ \ "posted_at").write[LocalDateTime]
+  )(unlift(Comment.unapply))
 
   //Formを送信する際のケースクラスを定義
   case class CommentForm(
