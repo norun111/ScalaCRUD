@@ -4,7 +4,6 @@ import java.util.UUID
 import java.time.ZonedDateTime
 import scalikejdbc._
 import java.time._
-import org.joda.time.{ DateTime, DateTimeZone }
 
 case class Post(id: String = UUID.randomUUID.toString,
                 text: String,
@@ -28,11 +27,6 @@ object Post extends SQLSyntaxSupport[Post] {
   def apply(p: SyntaxProvider[Post], rs: WrappedResultSet): Post = apply(p.resultName)(rs)
 
   val p = Post.syntax("p")
-
-  override val tableName = "post"
-
-  override val columns =
-    Seq("id", "text", "user_id", "comment_count", "posted_at")
 
   def findPost(post_id: String = UUID.randomUUID.toString)(
       implicit session: DBSession = autoSession): Option[Post] = {
@@ -71,8 +65,9 @@ object Post extends SQLSyntaxSupport[Post] {
   def addCommentCount(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                     autoSession) = {
     DB autoCommit { implicit session =>
-      sql"""UPDATE post SET comment_count = comment_count + 1
-        WHERE id = ${post_id}
+      sql"""
+      |  UPDATE post SET comment_count = comment_count + 1
+      |  WHERE id = ${post_id}
       """.update().apply()
     }
   }
