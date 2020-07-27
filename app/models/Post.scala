@@ -69,15 +69,6 @@ object Post extends SQLSyntaxSupport[Post] {
   //親Postのコメント数を+1
   def addCommentCount(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                     autoSession) = {
-    //    withSQL {
-    //      update(Post)
-    //        .set(
-    //          Post.column.comment_count -> Post.column.comment_count + 1
-    //        )
-    //        .where
-    //        .eq(Post.column.id, post_id)
-    //    }.update.apply()
-    //  }
     DB autoCommit { implicit session =>
       sql"""UPDATE post SET comment_count = comment_count + 1
         WHERE id = ${post_id}
