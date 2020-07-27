@@ -3,13 +3,14 @@ package models
 import java.util.UUID
 import java.time.ZonedDateTime
 import scalikejdbc._
-import java.time.LocalDate
+import java.time._
+import org.joda.time.{ DateTime, DateTimeZone }
 
 case class Post(id: String = UUID.randomUUID.toString,
                 text: String,
                 user_id: String,
                 comment_count: Int,
-                posted_at: LocalDate)
+                posted_at: LocalDateTime)
 
 object Post extends SQLSyntaxSupport[Post] {
 
@@ -22,7 +23,7 @@ object Post extends SQLSyntaxSupport[Post] {
       text = rs.string(p.text),
       user_id = rs.string(p.user_id),
       comment_count = rs.int(p.comment_count),
-      posted_at = rs.localDate(p.posted_at)
+      posted_at = rs.localDateTime(p.posted_at)
     )
   def apply(p: SyntaxProvider[Post], rs: WrappedResultSet): Post = apply(p.resultName)(rs)
 
