@@ -2,8 +2,6 @@ package models
 
 import java.time._
 import java.util._
-import org.joda.time.{ DateTime, DateTimeZone }
-
 import scalikejdbc._
 
 case class nestComment(
@@ -87,9 +85,10 @@ object Comment extends SQLSyntaxSupport[Comment] {
   //親Commentのコメント数を+1
   def addCommentCount(comment_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
-      sql"""UPDATE comment SET comment_count = comment_count + 1
-    WHERE id = ${comment_id}
-    """.update().apply()
+      sql"""
+      | UPDATE comment SET comment_count = comment_count + 1
+      | WHERE id = ${comment_id}
+      """.update().apply()
     }
 
 }
