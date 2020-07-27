@@ -13,7 +13,6 @@ case class nestComment(
     comment_count: Int,
     posted_at: Date
 )
-
 object nestComment extends SQLSyntaxSupport[nestComment] {
 
   var nc = nestComment.syntax("nc")
