@@ -115,12 +115,12 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                       }
                     //Formに送信されたuser_idがuserテーブルに存在しなかった場合
                     case None =>
-                      BadRequest((Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
+                      BadRequest(
+                        (Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
                   }
                 // post_idに紐づくレコードがPostテーブルにもCommentテーブルにも存在しない場合
                 case None =>
-                  BadRequest((Json.toJson(Response(
-                    Meta(400, s"post_id : ${post_id} not found")))))
+                  BadRequest((Json.toJson(Response(Meta(400, s"post_id : ${post_id} not found")))))
               }
           }
         }
