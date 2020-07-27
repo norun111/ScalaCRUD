@@ -26,11 +26,11 @@ object CommentJsonController {
     }
   }
 
+  //Formを送信する際のケースクラスを定義
   case class CommentForm(
       user_id: String,
       text: String
   )
-
   // PostをJSONに変換するためのWritesを定義
   implicit val commentFormWrites = (
     (__ \ "user_id").write[String] and
@@ -50,13 +50,13 @@ class CommentJsonController @Inject()(components: ControllerComponents)
 
   import CommentJsonController._
 
-  //index API
+  //任意のpost_idに紐づくComment一覧を取得
   def index(post_id: String) = Action { implicit request =>
     val comments = Comment.findAllComment(post_id)
     Ok(Json.obj("comments" -> Json.toJson(comments)))
   }
 
-  //create API
+  //任意のpost_idに紐づくCommentを新規に作成
   def create(post_id: String) = Action(parse.json) { implicit request =>
     request.body
       .validate[CommentForm]
@@ -64,56 +64,63 @@ class CommentJsonController @Inject()(components: ControllerComponents)
         DB.localTx { implicit session =>
           val uuid = UUID.randomUUID
 
+          // post_idに紐づくPostが存在するかどうかを確認
           Post.findPost(post_id) match {
             case Some(post) =>
+              //Formに送信されたuser_idがuserテーブルに存在するかどうか確認
               User.findUser(form.user_id) match {
+                //Formに送信されたuser_idがuserテーブルに存在した場合
                 case Some(user) =>
                   if (form.text.length == 0) {
                     //文字列長が0の状態
                     BadRequest(
                       (Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
                   } else if (form.text.length >= 101) {
-                    //文字列長が101の状態
+                    //文字列長が100良い長い状態
                     BadRequest((Json.toJson(
                       Response(Meta(400, "Can't be registered with more than 100 characters")))))
                   } else {
                     Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                    //post_idとPostのidが一致するレコードのcomment_countカラムの値を+1する
                     Post.addCommentCount(post_id)
                     Ok(Json.obj("result" -> "OK"))
                   }
-
+                //Formに送信されたuser_idがuserテーブルに存在しなかった場合
                 case None =>
                   BadRequest(
                     (Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
               }
 
             case None =>
+              //post_idに紐づくPostが存在しなかった場合、そのpost_idに紐づくCommentがあるかどうか確認
               Comment.findComment(post_id) match {
                 case Some(comment) =>
+                  //Formに送信されたuser_idがuserテーブルに存在するかどうか確認
                   User.findUser(form.user_id) match {
+                    //Formに送信されたuser_idがuserテーブルに存在した場合
                     case Some(user) =>
                       if (form.text.length == 0) {
                         //文字列長が0の状態
                         BadRequest(
                           (Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
                       } else if (form.text.length >= 101) {
-                        //文字列長が101の状態
+                        //文字列長が100より長い状態
                         BadRequest((Json.toJson(Response(
                           Meta(400, "Can't be registered with more than 100 characters")))))
                       } else {
                         Comment.create(uuid.toString, form.user_id, form.text, post_id)
+                        //post_idとCommentのidが一致するレコードのcomment_countカラムの値を+1する
                         Comment.addCommentCount(post_id)
                         Ok(Json.obj("result" -> "OK"))
                       }
-
+                    //Formに送信されたuser_idがuserテーブルに存在しなかった場合
                     case None =>
                       BadRequest((Json.toJson(Response(Meta(400, s"user_id : ${form.user_id} not found")))))
                   }
-
+                // post_idに紐づくレコードがPostテーブルにもCommentテーブルにも存在しない場合
                 case None =>
                   BadRequest((Json.toJson(Response(
-                    Meta(400,
-                         s"post_id : ${post_id} not found")))))
+                    Meta(400, s"post_id : ${post_id} not found")))))
               }
           }
         }
