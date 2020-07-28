@@ -16,13 +16,13 @@ object PostJsonController {
   case class PostForm(user_id: String, text: String)
 
   // PostをJSONに変換するためのWritesを定義
-  implicit val postFormWrites = (
+  implicit val postFormWrites: Writes[PostForm] = (
     (__ \ "user_id").write[String] and
       (__ \ "text").write[String]
   )(unlift(PostForm.unapply))
 
   // JSONをPostFormに変換するためのReadsを定義
-  implicit val postFormReads = (
+  implicit val postFormReads: Reads[PostForm] = (
     (__ \ "user_id").read[String] and
       (__ \ "text").read[String]
   )(PostForm)
@@ -52,7 +52,9 @@ class PostJsonController @Inject()(components: ControllerComponents)
             case Some(user) =>
               if (form.text.length == 0) {
                 //文字列長が0の状態
-                BadRequest((Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
+                BadRequest(
+                  Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
+//                BadRequest((Json.toJson(Response(Meta(400, "Can't be registered with null text")))))
               } else if (form.text.length > 100) {
                 //文字列長が100より長い状態
                 BadRequest((Json.toJson(
