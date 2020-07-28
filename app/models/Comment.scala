@@ -4,6 +4,7 @@ import java.time._
 import java.util._
 import scalikejdbc._
 
+// Commentにネストされる子Comment
 case class nestComment(
     id: String = UUID.randomUUID.toString,
     user_id: String,
@@ -12,6 +13,7 @@ case class nestComment(
     comment_count: Int,
     posted_at: LocalDateTime
 )
+
 object nestComment extends SQLSyntaxSupport[nestComment] {
 
   var nc = nestComment.syntax("nc")
@@ -56,15 +58,17 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   var c = Comment.syntax("c")
 
+  //post_idとidが一致するPost,Commentに対する全投稿を取得
   def findAllComment(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                    autoSession): Seq[Comment] = {
-    withSQL(select.from(Comment as c).where.eq(c.parent_post_id, post_id))
-      .map(Comment(c.resultName))
+    withSQL{
+      select.from(Comment as c).where.eq(c.parent_post_id, post_id)
+    }.map(Comment(c.resultName))
       .list
       .apply()
   }
 
-  //コメント先のコメントを検索
+  //コメント先のCommentを取得
   def findComment(comment_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                    autoSession): Option[Comment] = {
     withSQL {
@@ -82,7 +86,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
     }.update.apply()
   }
 
-  //親Commentのコメント数を+1
+  //親Commentのcomment_countを+1
   def addCommentCount(comment_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
       sql"""
