@@ -61,7 +61,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
   //post_idとidが一致するPost,Commentに対する全投稿を取得
   def findAllComment(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                    autoSession): Seq[Comment] = {
-    withSQL{
+    withSQL {
       select.from(Comment as c).where.eq(c.parent_post_id, post_id)
     }.map(Comment(c.resultName))
       .list
