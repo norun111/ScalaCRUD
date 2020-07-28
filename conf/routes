@@ -4,10 +4,10 @@
 # ~~~~
 
 
-# PostJSON API
+# PostJSON
 GET         /posts                                       controllers.PostJsonController.index
 POST        /posts/create                                controllers.PostJsonController.create
 
-# CommentJSON API
+# CommentJSON
 GET         /posts/:post_id/comments                     controllers.CommentJsonController.index(post_id: String)
 POST        /posts/:post_id/comments/create              controllers.CommentJsonController.create(post_id: String)

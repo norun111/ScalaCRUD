@@ -15,6 +15,7 @@ object User extends SQLSyntaxSupport[User] {
     )
   def apply(u: SyntaxProvider[User], rs: WrappedResultSet): User = apply(u.resultName)(rs)
 
+  // user_idとidが一致するUserのレコードを取得
   def findUser(user_id: String)(implicit session: DBSession = autoSession): Option[User] =
     DB readOnly { implicit session =>
       withSQL {
