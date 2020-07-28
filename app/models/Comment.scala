@@ -60,9 +60,9 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   //post_idとidが一致するPostかCommentに対する全投稿を取得
   def findAllComments(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
-                                                                   autoSession): Seq[Comment] = {
+                                                                    autoSession): Seq[Comment] = {
     withSQL {
-      select.from(Comment as c).where.eq(c.parent_post_id, post_id)
+      select.from(Comment as c).where.eq(c.parent_post_id, post_id).orderBy(c.posted_at.desc)
     }.map(Comment(c.resultName))
       .list
       .apply()
@@ -91,8 +91,8 @@ object Comment extends SQLSyntaxSupport[Comment] {
   def addCommentCount(comment_id: String = UUID.randomUUID.toString) =
     DB autoCommit { implicit session =>
       sql"""
-      | UPDATE comment SET comment_count = comment_count + 1
-      | WHERE id = ${comment_id}
+       UPDATE comment SET comment_count = comment_count + 1
+       WHERE id = ${comment_id}
       """.update.apply()
     }
 
