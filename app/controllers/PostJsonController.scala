@@ -56,8 +56,8 @@ class PostJsonController @Inject()(components: ControllerComponents)
                   Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
               } else if (form.text.length > 100) {
                 //文字列長が100より長い状態
-                BadRequest(
-                  Json.obj("meta" -> (Json.toJson(Meta(400, "Can't be registered with more than 100 characters")))))
+                BadRequest(Json.obj("meta" -> (Json.toJson(
+                  Meta(400, "Can't be registered with more than 100 characters")))))
               } else {
                 val uuid = UUID.randomUUID
                 Post.create(uuid.toString, form.user_id, form.text)
@@ -66,15 +66,14 @@ class PostJsonController @Inject()(components: ControllerComponents)
 
             case None =>
               //Formに送信されたuser_idがuserテーブルに存在しなかった場合
-              BadRequest(
-                Json.obj("meta" -> (Json.toJson(Meta(400, s"user_id : ${form.user_id} not found")))))
+              BadRequest(Json.obj(
+                "meta" -> (Json.toJson(Meta(400, s"user_id : ${form.user_id} not found")))))
           }
         }
       }
-      .recoverTotal { e =>
+      .recoverTotal { error =>
         // Formが妥当で無い場合バリデーションエラーを返す
-        BadRequest(
-          Json.obj("result" -> "Failure", "Error" -> JsError.toJson(e)))
+        BadRequest(Json.obj("result" -> "Failure", "Error" -> JsError.toJson(error)))
       }
   }
 }
