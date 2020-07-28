@@ -4,7 +4,7 @@ import java.time._
 import java.util._
 import scalikejdbc._
 
-// Commentにネストされる子Comment
+// Commentがネストする子Comment
 case class nestComment(
     id: String = UUID.randomUUID.toString,
     user_id: String,
@@ -58,8 +58,8 @@ object Comment extends SQLSyntaxSupport[Comment] {
 
   var c = Comment.syntax("c")
 
-  //post_idとidが一致するPost,Commentに対する全投稿を取得
-  def findAllComment(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
+  //post_idとidが一致するPostかCommentに対する全投稿を取得
+  def findAllComments(post_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                    autoSession): Seq[Comment] = {
     withSQL {
       select.from(Comment as c).where.eq(c.parent_post_id, post_id)
@@ -68,7 +68,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
       .apply()
   }
 
-  //コメント先のCommentを取得
+  // 任意のcomment_idとidが一致するCommentのレコードを取得
   def findComment(comment_id: String = UUID.randomUUID.toString)(implicit session: DBSession =
                                                                    autoSession): Option[Comment] = {
     withSQL {
@@ -76,6 +76,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
     }.map(Comment(c.resultName)).single.apply()
   }
 
+  // 特定のPostに紐付いた新規のCommentを作成
   def create(id: String = UUID.randomUUID.toString,
              user_id: String,
              text: String,
@@ -92,7 +93,7 @@ object Comment extends SQLSyntaxSupport[Comment] {
       sql"""
       | UPDATE comment SET comment_count = comment_count + 1
       | WHERE id = ${comment_id}
-      """.update().apply()
+      """.update.apply()
     }
 
 }
