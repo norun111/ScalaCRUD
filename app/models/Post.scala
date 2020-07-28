@@ -6,8 +6,8 @@ import scalikejdbc._
 import java.time._
 
 case class Post(id: String = UUID.randomUUID.toString,
-                text: String,
                 user_id: String,
+                text: String,
                 comment_count: Int,
                 posted_at: LocalDateTime)
 
@@ -19,8 +19,8 @@ object Post extends SQLSyntaxSupport[Post] {
   def apply(p: ResultName[Post])(rs: WrappedResultSet): Post =
     Post(
       id = rs.string(p.id),
-      text = rs.string(p.text),
       user_id = rs.string(p.user_id),
+      text = rs.string(p.text),
       comment_count = rs.int(p.comment_count),
       posted_at = rs.localDateTime(p.posted_at)
     )
@@ -46,6 +46,7 @@ object Post extends SQLSyntaxSupport[Post] {
         .on(p.id, c.parent_post_id)
         .leftJoin(nestComment.as(nc))
         .on(c.id, nc.parent_post_id)
+        .orderBy(p.posted_at.desc)
     }.one(Post(p.resultName))
       .toManies(
         rs => rs.stringOpt(c.resultName.parent_post_id).map(_ => Comment(c)(rs)),
@@ -68,8 +69,8 @@ object Post extends SQLSyntaxSupport[Post] {
   def addCommentCount(post_id: String = UUID.randomUUID.toString) = {
     DB autoCommit { implicit session =>
       sql"""
-      |  UPDATE post SET comment_count = comment_count + 1
-      |  WHERE id = ${post_id}
+        UPDATE post SET comment_count = comment_count + 1
+        WHERE id = ${post_id}
       """.update.apply()
     }
   }
