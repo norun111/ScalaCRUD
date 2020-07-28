@@ -11,7 +11,8 @@ import scalikejdbc._
 
 object CommentJsonController {
 
-  implicit val commentWrites = (
+  // Comment一覧情報をJSONに変換するためのWritesを定義
+  implicit val commentsWrites: Writes[Comment] = (
     (__ \ "id").write[String] and
       (__ \ "user_id").write[String] and
       (__ \ "text").write[String] and
@@ -20,19 +21,19 @@ object CommentJsonController {
       (__ \ "posted_at").write[LocalDateTime]
   )(unlift(Comment.unapply))
 
-  //Formを送信する際のケースクラスを定義
+  // Comment情報を受け取る為のケースクラス
   case class CommentForm(
       user_id: String,
       text: String
   )
-  // PostをJSONに変換するためのWritesを定義
-  implicit val commentFormWrites = (
+  // CommentをJSONに変換するためのWritesを定義
+  implicit val commentFormWrites: Writes[CommentForm] = (
     (__ \ "user_id").write[String] and
       (__ \ "text").write[String]
   )(unlift(CommentForm.unapply))
 
-  // JSONをPostFormに変換するためのReadsを定義
-  implicit val commentFormReads = (
+  // JSONをCommentFormに変換するためのReadsを定義
+  implicit val commentFormReads: Reads[CommentForm] = (
     (__ \ "user_id").read[String] and
       (__ \ "text").read[String]
   )(CommentForm)
