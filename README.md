@@ -1,1 +1,0 @@
-# intern2022_TomoyaUeno
