@@ -12,12 +12,3 @@ object Meta {
       (__ \ "errorMessage").write[String]
   )(unlift(Meta.unapply))
 }
-
-case class Response(meta: Meta, data: Option[JsValue] = None)
-
-object Response {
-  implicit val responseWrites = (
-    (__ \ "meta").write[Meta] and
-      (__ \ "data").write[Option[JsValue]]
-  )(unlift(Response.unapply))
-}
