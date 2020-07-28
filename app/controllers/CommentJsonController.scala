@@ -68,12 +68,12 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                 case Some(user) =>
                   if (form.text.length == 0) {
                     //文字列長が0の状態
-                    BadRequest(
-                      Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
+                    BadRequest(Json.obj(
+                      "meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
                   } else if (form.text.length > 100) {
                     //文字列長が100より長い状態
-                    BadRequest(
-                      Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with more than 100 characters"))))
+                    BadRequest(Json.obj("meta" -> Json.toJson(
+                      Meta(400, "Can't be registered with more than 100 characters"))))
                   } else {
                     Comment.create(uuid.toString, form.user_id, form.text, post_id)
                     //post_idとPostのidが一致するレコードのcomment_countカラムの値を+1する
@@ -82,8 +82,8 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                   }
                 //Formに送信されたuser_idがuserテーブルに存在しなかった場合
                 case None =>
-                  BadRequest(
-                    Json.obj("meta" -> Json.toJson(Meta(400, s"user_id : ${form.user_id} not found"))))
+                  BadRequest(Json.obj(
+                    "meta" -> Json.toJson(Meta(400, s"user_id : ${form.user_id} not found"))))
               }
 
             case None =>
@@ -96,12 +96,12 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                     case Some(user) =>
                       if (form.text.length == 0) {
                         //文字列長が0の状態
-                        BadRequest(
-                          Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
+                        BadRequest(Json.obj(
+                          "meta" -> Json.toJson(Meta(400, "Can't be registered with null text"))))
                       } else if (form.text.length > 100) {
                         //文字列長が100より長い状態
-                        BadRequest(
-                          Json.obj("meta" -> Json.toJson(Meta(400, "Can't be registered with more than 100 characters"))))
+                        BadRequest(Json.obj("meta" -> Json.toJson(
+                          Meta(400, "Can't be registered with more than 100 characters"))))
                       } else {
                         Comment.create(uuid.toString, form.user_id, form.text, post_id)
                         //post_idとCommentのidが一致するレコードのcomment_countカラムの値を+1する
@@ -110,8 +110,8 @@ class CommentJsonController @Inject()(components: ControllerComponents)
                       }
                     //Formに送信されたuser_idがuserテーブルに存在しなかった場合
                     case None =>
-                      BadRequest(
-                        Json.obj("meta" -> Json.toJson(Meta(400, s"user_id : ${form.user_id} not found"))))
+                      BadRequest(Json.obj(
+                        "meta" -> Json.toJson(Meta(400, s"user_id : ${form.user_id} not found"))))
                   }
                 // post_idに紐づくレコードがPostテーブルにもCommentテーブルにも存在しない場合
                 case None =>
@@ -121,10 +121,9 @@ class CommentJsonController @Inject()(components: ControllerComponents)
           }
         }
       }
-      .recoverTotal { e =>
+      .recoverTotal { error =>
         // Formが妥当で無い場合バリデーションエラーを返す
-        BadRequest(
-          Json.obj("result" -> "Failure", "Error" -> JsError.toJson(e)))
+        BadRequest(Json.obj("result" -> "Failure", "Error" -> JsError.toJson(error)))
       }
   }
 
