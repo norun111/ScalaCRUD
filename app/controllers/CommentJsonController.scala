@@ -10,7 +10,6 @@ import play.api.mvc._
 import scalikejdbc._
 
 object CommentJsonController {
-
   // Comment一覧情報をJSONに変換するためのWritesを定義
   implicit val commentsWrites: Writes[Comment] = (
     (__ \ "id").write[String] and
