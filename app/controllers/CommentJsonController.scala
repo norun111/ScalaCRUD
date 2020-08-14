@@ -39,6 +39,7 @@ object CommentJsonController {
 
 }
 
+
 class CommentJsonController @Inject()(components: ControllerComponents)
     extends AbstractController(components) {
 
